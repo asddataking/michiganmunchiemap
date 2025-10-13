@@ -41,8 +41,13 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
 2. **Set up Supabase**
    
    Create a Supabase project and get your credentials from the project settings.
+   
+   **Important**: Run the database migration to enable PostGIS:
+   1. Go to your Supabase dashboard → SQL Editor
+   2. Copy and paste the contents of `supabase/migrations/001_initial_schema.sql`
+   3. Run the migration (this enables PostGIS and creates all tables)
 
-3. **Environment Variables**
+4. **Environment Variables**
    
    Create `.env.local`:
    ```env
@@ -63,9 +68,12 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
    INGEST_API_KEY=supersecret
    ```
 
-4. **Database Setup**
+5. **Authentication Setup**
    
-   Run the SQL migration in your Supabase project:
+   Set up Supabase Auth for admin access:
+   1. Go to Authentication → Settings in your Supabase dashboard
+   2. Enable email authentication
+   3. Create admin user accounts with the emails you specified in `NEXT_PUBLIC_ADMIN_EMAILS`
    ```sql
    -- See supabase/migrations/001_initial_schema.sql
    ```
