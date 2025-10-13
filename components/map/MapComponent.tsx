@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
+import MapDebugInfo from '@/components/debug/MapDebugInfo';
 import { MapPin, Navigation, Star } from 'lucide-react';
 import { Place, ClusterPoint } from '@/types';
 import { cn } from '@/lib/utils';
@@ -35,19 +36,30 @@ const MapComponent: React.FC<MapComponentProps> = ({
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN;
 
+    // Check if we have at least one map provider
+    if (!mapTilerKey && !mapboxToken) {
+      console.error('No map provider configured. Please set NEXT_PUBLIC_MAPTILER_KEY or NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN');
+      return;
+    }
+
     // Use MapTiler as primary, fallback to Mapbox
     const styleUrl = mapTilerKey
       ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`
       : `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
 
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: styleUrl,
-      center: [-84.5467, 44.3148], // Center of Michigan
-      zoom: 6,
-      maxZoom: 18,
-      minZoom: 5,
-    });
+    try {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: styleUrl,
+        center: [-84.5467, 44.3148], // Center of Michigan
+        zoom: 6,
+        maxZoom: 18,
+        minZoom: 5,
+      });
+    } catch (error) {
+      console.error('Failed to initialize map:', error);
+      return;
+    }
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -294,6 +306,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
           <span>Clustered Places</span>
         </div>
       </div>
+
+      {/* Debug info */}
+      <MapDebugInfo
+        isClient={typeof window !== 'undefined'}
+        hasMapTilerKey={!!process.env.NEXT_PUBLIC_MAPTILER_KEY}
+        hasMapboxToken={!!process.env.NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN}
+        mapLoaded={mapLoaded}
+      />
     </div>
   );
 };

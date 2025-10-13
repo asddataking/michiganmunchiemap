@@ -5,6 +5,12 @@ import { AuthProvider } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#3b82f6',
+};
+
 export const metadata: Metadata = {
   title: 'Michigan Munchies - Discover the Best Food in Michigan',
   description: 'Explore Michigan\'s best restaurants, food trucks, and local eats with our interactive map and curated directory.',
@@ -35,8 +41,7 @@ export const metadata: Metadata = {
     description: 'Explore Michigan\'s best restaurants, food trucks, and local eats with our interactive map and curated directory.',
     images: ['/og-image.jpg'],
   },
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#3b82f6',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
 };
 
 export default function RootLayout({
