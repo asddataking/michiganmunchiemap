@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
 import { 
   MapPin, 
   Plus, 
@@ -11,11 +13,19 @@ import {
   Settings, 
   BarChart3,
   Users,
-  FileText
+  FileText,
+  LogOut
 } from 'lucide-react';
 
 const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   const navigation = [
     {
@@ -94,12 +104,21 @@ const AdminSidebar: React.FC = () => {
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
-        <div className="bg-muted rounded-lg p-3">
+        <div className="bg-muted rounded-lg p-3 mb-2">
           <div className="text-sm font-medium">Admin User</div>
           <div className="text-xs text-muted-foreground">
-            admin@michiganmunchies.com
+            {user?.email || 'Loading...'}
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSignOut}
+          className="w-full"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
     </div>
   );

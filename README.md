@@ -7,7 +7,7 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
 - **Frontend**: Next.js 15 + TypeScript + Tailwind + shadcn/ui
 - **Backend**: Supabase Postgres + PostGIS (via Supabase JS SDK)
 - **Map**: MapLibre GL JS (MapTiler tiles, fallback Mapbox)
-- **Auth**: Supabase Auth (admin-only, no public sign-ups)
+- **Auth**: Supabase Auth (admin-only authentication)
 - **Storage**: Supabase Storage (for hero images)
 - **Hosting**: Vercel
 
@@ -49,16 +49,15 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
    # Site Configuration
    NEXT_PUBLIC_SITE_URL=https://michiganmunchies.com
    
-   # Authentication
-   NEXTAUTH_SECRET=your-secret-key-here
-   NEXTAUTH_URL=http://localhost:3000
+   # Authentication (Supabase Auth)
+   # No additional auth configuration needed
    
    # Map Configuration
    NEXT_PUBLIC_MAPTILER_KEY=your-maptiler-key
-   NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your-mapbox-token
+   NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN=your-mapbox-public-token
    
    # Admin Configuration
-   ADMIN_EMAILS=you@dankndevour.com,dan@dankpass.com
+   NEXT_PUBLIC_ADMIN_EMAILS=you@dankndevour.com,dan@dankpass.com
    
    # API Configuration
    INGEST_API_KEY=supersecret
@@ -186,9 +185,8 @@ Server-to-server upsert endpoint:
 
 Ensure these are set in your Vercel dashboard:
 - `NEXT_PUBLIC_SITE_URL`
-- `NEXTAUTH_SECRET`
-- `NEXT_PUBLIC_MAPTILER_KEY` or `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`
-- `ADMIN_EMAILS`
+- `NEXT_PUBLIC_ADMIN_EMAILS`
+- `NEXT_PUBLIC_MAPTILER_KEY` or `NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN`
 - `INGEST_API_KEY`
 
 ## 📊 CSV Import Format

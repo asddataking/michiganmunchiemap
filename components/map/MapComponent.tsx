@@ -33,7 +33,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     if (!mapContainer.current || map.current) return;
 
     const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
-    const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_PUBLIC_TOKEN;
 
     // Use MapTiler as primary, fallback to Mapbox
     const styleUrl = mapTilerKey

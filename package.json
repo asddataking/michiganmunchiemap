@@ -29,7 +29,6 @@
     "lucide-react": "^0.390.0",
     "maplibre-gl": "^3.6.2",
     "next": "^15.0.0",
-    "next-auth": "^4.24.5",
     "papaparse": "^5.4.1",
     "postcss": "^8.4.38",
     "react": "^18.3.1",
