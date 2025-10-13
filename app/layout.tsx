@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   creator: 'Michigan Munchies',
   publisher: 'Michigan Munchies',
   robots: 'index, follow',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

@@ -45,7 +45,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     // Use MapTiler as primary, fallback to Mapbox
     const styleUrl = mapTilerKey
       ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`
-      : `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
+      : `https://api.mapbox.com/styles/v1/mapbox/streets-v12/style.json?access_token=${mapboxToken}`;
 
     try {
       map.current = new maplibregl.Map({

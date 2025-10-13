@@ -12,6 +12,7 @@ export function middleware(request: NextRequest) {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://*.supabase.co https://api.maptiler.com https://api.mapbox.com https://tiles.maptiler.com https://*.mapbox.com",
     "connect-src 'self' https://*.supabase.co https://api.maptiler.com https://api.mapbox.com wss://*.supabase.co",
+    "worker-src 'self' blob:",
     "frame-src 'none'",
     "object-src 'none'",
     "base-uri 'self'",
