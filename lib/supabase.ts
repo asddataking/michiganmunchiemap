@@ -14,7 +14,15 @@ let supabaseAdminInstance: SupabaseClient | null = null;
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        storageKey: 'michigan-munchies-auth'
+      }
+    });
   }
   return supabaseInstance;
 })();
@@ -24,7 +32,14 @@ export const supabaseAdmin = (() => {
   if (!supabaseAdminInstance) {
     supabaseAdminInstance = createClient(
       supabaseUrl,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+      process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        }
+      }
     );
   }
   return supabaseAdminInstance;

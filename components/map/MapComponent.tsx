@@ -43,19 +43,50 @@ const MapComponent: React.FC<MapComponentProps> = ({
     }
 
     // Use MapTiler as primary, fallback to Mapbox
-    const styleUrl = mapTilerKey
-      ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`
-      : `https://api.mapbox.com/styles/v1/mapbox/streets-v12/style.json?access_token=${mapboxToken}`;
-
-    try {
-      map.current = new maplibregl.Map({
+    let mapConfig;
+    if (mapTilerKey) {
+      mapConfig = {
         container: mapContainer.current,
-        style: styleUrl,
-        center: [-82.7404, 43.0156], // Center of St. Clair County, MI
+        style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`,
+        center: [-82.7404, 43.0156] as [number, number], // Center of St. Clair County, MI
         zoom: 10,
         maxZoom: 18,
         minZoom: 5,
-      });
+      };
+    } else {
+      // For Mapbox with MapLibre, we need to use a different approach
+      mapConfig = {
+        container: mapContainer.current,
+        style: {
+          version: 8 as const,
+          sources: {
+            'raster-tiles': {
+              type: 'raster' as const,
+              tiles: [
+                `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`
+              ],
+              tileSize: 256
+            }
+          },
+          layers: [
+            {
+              id: 'simple-tiles',
+              type: 'raster' as const,
+              source: 'raster-tiles',
+              minzoom: 0,
+              maxzoom: 22
+            }
+          ]
+        },
+        center: [-82.7404, 43.0156] as [number, number], // Center of St. Clair County, MI
+        zoom: 10,
+        maxZoom: 18,
+        minZoom: 5,
+      };
+    }
+
+    try {
+      map.current = new maplibregl.Map(mapConfig);
     } catch (error) {
       console.error('Failed to initialize map:', error);
       return;
