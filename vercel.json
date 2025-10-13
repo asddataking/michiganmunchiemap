@@ -1,0 +1,25 @@
+{
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "NEXT_PUBLIC_MAPTILER_KEY": "@next_public_maptiler_key",
+    "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN": "@next_public_mapbox_access_token",
+    "ADMIN_EMAILS": "@admin_emails",
+    "INGEST_API_KEY": "@ingest_api_key"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
+      "NEXTAUTH_SECRET": "@nextauth_secret",
+      "NEXT_PUBLIC_MAPTILER_KEY": "@next_public_maptiler_key",
+      "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN": "@next_public_mapbox_access_token",
+      "ADMIN_EMAILS": "@admin_emails",
+      "INGEST_API_KEY": "@ingest_api_key"
+    }
+  }
+}
