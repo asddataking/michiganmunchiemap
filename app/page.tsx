@@ -60,9 +60,10 @@ export default function HomePage() {
     }
   }, []);
 
-  // Load initial places (Michigan bounds)
+  // Load initial places (St. Clair County, MI area)
   useEffect(() => {
-    loadPlacesInBounds(-90.418, 41.696, -82.123, 48.238);
+    // Load initial places for St. Clair County, MI area
+    loadPlacesInBounds(-83.2, 42.6, -82.2, 43.5);
   }, []);
 
   // Extract available filter options from places

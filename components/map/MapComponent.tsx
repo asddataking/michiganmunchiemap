@@ -51,8 +51,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: styleUrl,
-        center: [-84.5467, 44.3148], // Center of Michigan
-        zoom: 6,
+        center: [-82.7404, 43.0156], // Center of St. Clair County, MI
+        zoom: 10,
         maxZoom: 18,
         minZoom: 5,
       });
@@ -109,7 +109,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
   // Add markers for places
   useEffect(() => {
-    if (!map.current || !mapLoaded || !places.length) return;
+    if (!map.current || !mapLoaded) return;
+    
+    // If no places, just show the empty map
+    if (!places.length) return;
 
     // Clear existing markers
     const existingMarkers = document.querySelectorAll('.place-marker');
@@ -306,6 +309,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
           <span>Clustered Places</span>
         </div>
       </div>
+
+      {/* No places indicator */}
+      {mapLoaded && places.length === 0 && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 rounded-lg p-4 shadow-lg z-10">
+          <div className="text-center">
+            <MapPin className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-600">No places found in this area</p>
+            <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or zooming out</p>
+          </div>
+        </div>
+      )}
 
       {/* Debug info */}
       <MapDebugInfo
