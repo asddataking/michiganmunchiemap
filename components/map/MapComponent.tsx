@@ -279,7 +279,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   };
 
   return (
-    <div className={cn('relative w-full h-full', className)}>
+    <div className={cn('relative w-full h-full map-container', className)}>
       <div ref={mapContainer} className="w-full h-full rounded-lg" />
       
       {/* Location button */}

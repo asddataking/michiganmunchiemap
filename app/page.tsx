@@ -40,11 +40,17 @@ export default function HomePage() {
   const [viewMode, setViewMode] = useState<'split' | 'map' | 'list'>('split');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   // Available filter options
   const [availableCounties, setAvailableCounties] = useState<string[]>([]);
   const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Get user location
   useEffect(() => {
@@ -164,6 +170,18 @@ export default function HomePage() {
     setSelectedPlace(place);
   };
 
+  // Show loading state until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -235,23 +253,22 @@ export default function HomePage() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 flex">
+          <div className="flex-1 flex min-h-0">
             {/* Map */}
-            {(viewMode === 'split' || viewMode === 'map') && (
-              <div className={`${viewMode === 'map' ? 'w-full' : 'w-1/2'} ${viewMode === 'split' ? 'border-r' : ''}`}>
+            <div className={`${viewMode === 'map' ? 'w-full' : viewMode === 'split' ? 'w-1/2' : 'hidden'} ${viewMode === 'split' ? 'border-r' : ''}`}>
+              <div className="h-full w-full">
                 <MapComponent
                   places={filteredPlaces}
                   onPlaceSelect={handlePlaceSelect}
                   onBoundsChange={handleBoundsChange}
                   selectedPlace={selectedPlace}
-                  className="h-full"
+                  className="h-full w-full"
                 />
               </div>
-            )}
+            </div>
 
             {/* Places List */}
-            {(viewMode === 'split' || viewMode === 'list') && (
-              <div className={`${viewMode === 'list' ? 'w-full' : 'w-1/2'} flex flex-col`}>
+            <div className={`${viewMode === 'list' ? 'w-full' : viewMode === 'split' ? 'w-1/2' : 'hidden'} flex flex-col min-h-0`}>
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {loading ? (
                     <div className="space-y-4">
@@ -295,8 +312,7 @@ export default function HomePage() {
                     ))
                   )}
                 </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </main>
