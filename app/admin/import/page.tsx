@@ -61,7 +61,7 @@ export default function CSVImportPage() {
           return;
         }
 
-        const places = data.map((row: CSVRow, index) => {
+        const places = data.map((row: any, index) => {
           try {
             return {
               id: `temp-${index}`,
@@ -77,10 +77,10 @@ export default function CSVImportPage() {
                 coordinates: [
                   parseFloat(row.longitude),
                   parseFloat(row.latitude)
-                ],
+                ] as [number, number],
               },
-              cuisines: row.cuisines?.split(',').map(c => c.trim()).filter(Boolean) || [],
-              tags: row.tags?.split(',').map(t => t.trim()).filter(Boolean) || [],
+              cuisines: row.cuisines?.split(',').map((c: string) => c.trim()).filter(Boolean) || [],
+              tags: row.tags?.split(',').map((t: string) => t.trim()).filter(Boolean) || [],
               price_level: parseInt(row.price_level || '2'),
               rating: row.rating ? parseFloat(row.rating) : null,
               website: row.website?.trim() || null,
@@ -93,7 +93,7 @@ export default function CSVImportPage() {
               hero_image_url: null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
-            };
+            } as Place;
           } catch (error) {
             throw new Error(`Row ${index + 2}: Invalid data format`);
           }
@@ -120,36 +120,37 @@ export default function CSVImportPage() {
           let skipped = 0;
           const importErrors: string[] = [];
 
-          for (const [index, row] of data.entries()) {
-            try {
-              const placeData = {
-                slug: generateSlug(row.name),
-                name: row.name.trim(),
-                address: row.address?.trim() || null,
-                city: row.city?.trim() || null,
-                county: row.county?.trim() || null,
-                state: row.state?.trim() || 'MI',
-                zip: row.zip?.trim() || null,
-                location: {
-                  type: 'Point',
-                  coordinates: [
-                    parseFloat(row.longitude),
-                    parseFloat(row.latitude)
-                  ],
-                },
-                cuisines: row.cuisines?.split(',').map(c => c.trim()).filter(Boolean) || [],
-                tags: row.tags?.split(',').map(t => t.trim()).filter(Boolean) || [],
-                price_level: parseInt(row.price_level || '2'),
-                rating: row.rating ? parseFloat(row.rating) : null,
-                website: row.website?.trim() || null,
-                phone: row.phone?.trim() || null,
-                ig_url: row.ig_url?.trim() || null,
-                is_featured: row.is_featured?.toLowerCase() === 'true',
-                is_verified: row.is_verified?.toLowerCase() === 'true',
-                status: 'published',
-                hours: {},
-                hero_image_url: null,
-              };
+        for (const [index, row] of data.entries()) {
+          try {
+            const csvRow = row as any;
+            const placeData = {
+              slug: generateSlug(csvRow.name),
+              name: csvRow.name.trim(),
+              address: csvRow.address?.trim() || null,
+              city: csvRow.city?.trim() || null,
+              county: csvRow.county?.trim() || null,
+              state: csvRow.state?.trim() || 'MI',
+              zip: csvRow.zip?.trim() || null,
+              location: {
+                type: 'Point' as const,
+                coordinates: [
+                  parseFloat(csvRow.longitude),
+                  parseFloat(csvRow.latitude)
+                ] as [number, number],
+              },
+              cuisines: csvRow.cuisines?.split(',').map((c: string) => c.trim()).filter(Boolean) || [],
+              tags: csvRow.tags?.split(',').map((t: string) => t.trim()).filter(Boolean) || [],
+              price_level: parseInt(csvRow.price_level || '2'),
+              rating: csvRow.rating ? parseFloat(csvRow.rating) : null,
+              website: csvRow.website?.trim() || null,
+              phone: csvRow.phone?.trim() || null,
+              ig_url: csvRow.ig_url?.trim() || null,
+              is_featured: csvRow.is_featured?.toLowerCase() === 'true',
+              is_verified: csvRow.is_verified?.toLowerCase() === 'true',
+              status: 'published',
+              hours: {},
+              hero_image_url: null,
+              } as Partial<Place>;
 
               const result = await PlacesService.upsertPlace(placeData);
               

@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['maplibre-gl'],
-  },
+  serverExternalPackages: ['maplibre-gl'],
   images: {
     domains: ['localhost', 'supabase.com'],
     remotePatterns: [

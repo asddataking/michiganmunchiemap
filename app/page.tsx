@@ -71,7 +71,7 @@ export default function HomePage() {
     const cuisines = [...new Set(places.flatMap(p => p.cuisines))].sort();
     const tags = [...new Set(places.flatMap(p => p.tags))].sort();
 
-    setAvailableCounties(counties);
+    setAvailableCounties(counties as string[]);
     setAvailableCuisines(cuisines);
     setAvailableTags(tags);
   }, [places]);
@@ -155,8 +155,8 @@ export default function HomePage() {
     }
   };
 
-  const handleBoundsChange = useCallback((bounds: BoundingBox) => {
-    loadPlacesInBounds(bounds.minLng, bounds.minLat, bounds.maxLng, bounds.maxLat);
+  const handleBoundsChange = useCallback((bounds: any) => {
+    loadPlacesInBounds(bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth());
   }, []);
 
   const handlePlaceSelect = (place: Place) => {

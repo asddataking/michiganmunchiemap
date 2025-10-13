@@ -20,7 +20,7 @@ export interface Place {
   phone?: string;
   ig_url?: string;
   hours: Record<string, any>;
-  hero_image_url?: string;
+  hero_image_url?: string | null;
   is_featured: boolean;
   is_verified: boolean;
   status: 'draft' | 'published' | 'archived';

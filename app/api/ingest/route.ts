@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       state: body.state || 'MI',
       zip: body.zip || null,
       location: {
-        type: 'Point',
+        type: 'Point' as const,
         coordinates: body.location.coordinates || [body.location.lng, body.location.lat],
       },
       cuisines: body.cuisines || [],
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       state: body.state || 'MI',
       zip: body.zip || null,
       location: {
-        type: 'Point',
+        type: 'Point' as const,
         coordinates: body.location.coordinates || [body.location.lng, body.location.lat],
       },
       cuisines: body.cuisines || [],

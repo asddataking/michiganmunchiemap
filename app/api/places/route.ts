@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Search/filter query
     const places = await PlacesService.searchPlaces(
-      search,
+      search || '',
       {
         counties: counties.length ? counties : undefined,
         cuisines: cuisines.length ? cuisines : undefined,

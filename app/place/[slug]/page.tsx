@@ -4,14 +4,14 @@ import PlaceDetailPage from '@/components/places/PlaceDetailPage';
 import { PlacesService } from '@/lib/supabase';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   
   // For now, return mock metadata since MCP integration needs to be set up
   // In a real implementation, you would fetch the place data first
@@ -90,7 +90,7 @@ function generateJsonLd(place: any) {
     } : undefined,
     image: place.hero_image_url,
     description: `${place.name} in ${place.city}, Michigan`,
-    openingHoursSpecification: place.hours ? Object.entries(place.hours).map(([day, hours]) => ({
+    openingHoursSpecification: place.hours ? Object.entries(place.hours).map(([day, hours]: [string, any]) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: day,
       opens: hours.open,
@@ -102,7 +102,7 @@ function generateJsonLd(place: any) {
 }
 
 export default async function PlacePage({ params }: PageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const place = await PlacesService.getPlaceBySlug(slug);
 
@@ -136,50 +136,3 @@ export default async function PlacePage({ params }: PageProps) {
   );
 }
 
-// Real implementation would use MCP client like this:
-/*
-export default async function PlacePage({ params }: PageProps) {
-  const { slug } = params;
-
-  try {
-    const mcpClient = getSupabaseClient(mcpInstance);
-    const result = await mcpClient.getPlaceBySlug(slug);
-
-    if (result.error || !result.data || result.data.length === 0) {
-      notFound();
-    }
-
-    const place = result.data[0];
-
-    // Get nearby places
-    const nearbyResult = await mcpClient.getNearbyPlaces(
-      place.location.coordinates[0],
-      place.location.coordinates[1],
-      5, // 5 mile radius
-      10 // limit to 10 places
-    );
-
-    const nearbyPlaces = nearbyResult.data || [];
-
-    return (
-      <>
-        {/* JSON-LD structured data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: generateJsonLd(place),
-          }}
-        />
-        
-        <PlaceDetailPage 
-          place={place} 
-          nearbyPlaces={nearbyPlaces}
-        />
-      </>
-    );
-  } catch (error) {
-    console.error('Error fetching place:', error);
-    notFound();
-  }
-}
-*/
