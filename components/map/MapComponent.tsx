@@ -167,9 +167,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         createClusterMarker(cluster);
       }
     });
-  }, [places, mapLoaded, selectedPlace]);
+  }, [places, mapLoaded, selectedPlace, createClusters, createPlaceMarker, createClusterMarker]);
 
-  const createPlaceMarker = (place: Place) => {
+  const createPlaceMarker = useCallback((place: Place) => {
     if (!map.current) return;
 
     console.log('MapComponent: Creating marker for place:', place.name, 'at coordinates:', place.location.coordinates);
@@ -222,9 +222,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .addTo(map.current);
     
     console.log('MapComponent: Marker added to map for:', place.name);
-  };
+  }, [onPlaceSelect]);
 
-  const createClusterMarker = (cluster: ClusterPoint) => {
+  const createClusterMarker = useCallback((cluster: ClusterPoint) => {
     if (!map.current) return;
 
     const el = document.createElement('div');
@@ -261,10 +261,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
     new maplibregl.Marker(el)
       .setLngLat(cluster.coordinates)
       .addTo(map.current);
-  };
+  }, []);
 
   // Create clusters based on zoom level
-  const createClusters = (places: Place[], zoom: number): ClusterPoint[] => {
+  const createClusters = useCallback((places: Place[], zoom: number): ClusterPoint[] => {
     // Much smaller clustering distance to prevent over-clustering
     const clusterDistance = zoom < 8 ? 20 : zoom < 12 ? 10 : 5; // km
     const clusters: ClusterPoint[] = [];
@@ -303,7 +303,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     });
 
     return clusters;
-  };
+  }, []);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371; // Earth's radius in km

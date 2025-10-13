@@ -59,9 +59,10 @@ export default function MapPage() {
 
   // Cleanup timeout on unmount
   useEffect(() => {
+    const timeoutRef = boundsTimeoutRef.current;
     return () => {
-      if (boundsTimeoutRef.current) {
-        clearTimeout(boundsTimeoutRef.current);
+      if (timeoutRef) {
+        clearTimeout(timeoutRef);
       }
     };
   }, []);
@@ -168,7 +169,7 @@ export default function MapPage() {
   };
 
   // Load all places once and cache them
-  const loadAllPlaces = async () => {
+  const loadAllPlaces = useCallback(async () => {
     // Prevent multiple loads
     if (hasLoadedRef.current) {
       console.log('Already loaded, skipping');
@@ -206,7 +207,7 @@ export default function MapPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Filter places by bounds (client-side filtering)
   const filterPlacesByBounds = (places: Place[], minLng: number, minLat: number, maxLng: number, maxLat: number) => {
