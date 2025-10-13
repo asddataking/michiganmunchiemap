@@ -8,6 +8,7 @@ import { Upload, Download, AlertCircle, CheckCircle, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { CSVImportResult, Place } from '@/types';
 import { generateSlug } from '@/lib/utils';
+import { PlacesService } from '@/lib/supabase';
 
 interface CSVRow {
   name: string;
@@ -150,12 +151,14 @@ export default function CSVImportPage() {
                 hero_image_url: null,
               };
 
-              // Mock import - in real implementation, use MCP client
-              // const mcpClient = getSupabaseClient(mcpInstance);
-              // const result = await mcpClient.upsert('places', placeData);
+              const result = await PlacesService.upsertPlace(placeData);
               
-              console.log('Importing place:', placeData);
-              imported++;
+              if (result) {
+                imported++;
+              } else {
+                importErrors.push(`Row ${index + 2}: Failed to save place`);
+                skipped++;
+              }
 
             } catch (error) {
               importErrors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);

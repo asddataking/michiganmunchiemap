@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PlaceDetailPage from '@/components/places/PlaceDetailPage';
-import { getSupabaseClient } from '@/lib/supabase-mcp';
+import { PlacesService } from '@/lib/supabase';
 
 interface PageProps {
   params: {
@@ -104,57 +104,19 @@ function generateJsonLd(place: any) {
 export default async function PlacePage({ params }: PageProps) {
   const { slug } = params;
 
-  // For now, return mock data since MCP integration needs to be set up
-  // In a real implementation, you would use:
-  // const mcpClient = getSupabaseClient(mcpInstance);
-  // const result = await mcpClient.getPlaceBySlug(slug);
-  
-  const mockPlace = {
-    id: '1',
-    slug: slug,
-    name: 'Example Restaurant',
-    address: '123 Main St',
-    city: 'Detroit',
-    county: 'Wayne',
-    state: 'MI',
-    zip: '48201',
-    location: {
-      type: 'Point',
-      coordinates: [-83.0458, 42.3314],
-    },
-    cuisines: ['American', 'Burgers'],
-    tags: ['Outdoor Seating', 'Family Friendly'],
-    price_level: 2,
-    rating: 4.5,
-    website: 'https://example.com',
-    phone: '313-555-0123',
-    ig_url: 'https://instagram.com/example',
-    is_featured: true,
-    is_verified: true,
-    status: 'published',
-    hours: {
-      monday: { open: '11:00', close: '22:00' },
-      tuesday: { open: '11:00', close: '22:00' },
-      wednesday: { open: '11:00', close: '22:00' },
-      thursday: { open: '11:00', close: '22:00' },
-      friday: { open: '11:00', close: '23:00' },
-      saturday: { open: '11:00', close: '23:00' },
-      sunday: { open: '12:00', close: '21:00' },
-    },
-    hero_image_url: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
+  const place = await PlacesService.getPlaceBySlug(slug);
 
-  // Mock nearby places
-  const mockNearbyPlaces = [
-    {
-      ...mockPlace,
-      id: '2',
-      name: 'Nearby Restaurant',
-      distance_miles: 0.5,
-    },
-  ];
+  if (!place) {
+    notFound();
+  }
+
+  // Get nearby places
+  const nearbyPlaces = await PlacesService.getNearbyPlaces(
+    place.location.coordinates[0],
+    place.location.coordinates[1],
+    5, // 5 mile radius
+    10 // limit to 10 places
+  );
 
   return (
     <>
@@ -162,13 +124,13 @@ export default async function PlacePage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: generateJsonLd(mockPlace),
+          __html: generateJsonLd(place),
         }}
       />
       
       <PlaceDetailPage 
-        place={mockPlace} 
-        nearbyPlaces={mockNearbyPlaces}
+        place={place} 
+        nearbyPlaces={nearbyPlaces}
       />
     </>
   );

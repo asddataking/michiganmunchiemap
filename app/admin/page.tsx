@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Plus, Upload, BarChart3, TrendingUp, Users } from 'lucide-react';
+import { MapPin, Plus, Upload, BarChart3, TrendingUp, Users, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { PlacesService } from '@/lib/supabase';
 
 interface DashboardStats {
   totalPlaces: number;
@@ -27,18 +28,31 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data for now - in real implementation, fetch from MCP
-    setTimeout(() => {
-      setStats({
-        totalPlaces: 1247,
-        publishedPlaces: 1189,
-        draftPlaces: 58,
-        featuredPlaces: 89,
-        totalCuisines: 23,
-        totalCounties: 83,
-      });
-      setLoading(false);
-    }, 1000);
+    const loadStats = async () => {
+      try {
+        const dashboardStats = await PlacesService.getDashboardStats();
+        setStats({
+          ...dashboardStats,
+          totalCuisines: 23, // This would need a separate query
+          totalCounties: 83, // This would need a separate query
+        });
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        // Fallback to mock data if there's an error
+        setStats({
+          totalPlaces: 0,
+          publishedPlaces: 0,
+          draftPlaces: 0,
+          featuredPlaces: 0,
+          totalCuisines: 0,
+          totalCounties: 0,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
   }, []);
 
   if (loading) {

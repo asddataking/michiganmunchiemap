@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, Map, List, Filter } from 'lucide-react';
 import { Place, MapFilters, BoundingBox } from '@/types';
-import { getSupabaseClient } from '@/lib/supabase-mcp';
+import { PlacesService } from '@/lib/supabase';
 
 // Dynamically import MapComponent to avoid SSR issues
 const MapComponent = dynamic(() => import('@/components/map/MapComponent'), {
@@ -145,38 +145,8 @@ export default function HomePage() {
     setError(null);
 
     try {
-      // This would use the MCP client in a real implementation
-      // For now, we'll simulate with mock data
-      const mockPlaces: Place[] = [
-        {
-          id: '1',
-          slug: 'example-restaurant',
-          name: 'Example Restaurant',
-          address: '123 Main St',
-          city: 'Detroit',
-          county: 'Wayne',
-          state: 'MI',
-          zip: '48201',
-          location: {
-            type: 'Point',
-            coordinates: [-83.0458, 42.3314],
-          },
-          cuisines: ['American', 'Burgers'],
-          tags: ['Outdoor Seating', 'Family Friendly'],
-          price_level: 2,
-          rating: 4.5,
-          website: 'https://example.com',
-          phone: '313-555-0123',
-          is_featured: true,
-          is_verified: true,
-          status: 'published',
-          hours: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ];
-
-      setPlaces(mockPlaces);
+      const places = await PlacesService.getPlacesInBounds(minLng, minLat, maxLng, maxLat);
+      setPlaces(places);
     } catch (err) {
       setError('Failed to load places');
       console.error('Error loading places:', err);

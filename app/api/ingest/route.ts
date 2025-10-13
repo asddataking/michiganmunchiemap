@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase-mcp';
+import { PlacesService } from '@/lib/supabase';
 import { generateSlug } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
@@ -56,21 +56,18 @@ export async function POST(request: NextRequest) {
       status: body.status || 'published',
     };
 
-    // For now, return mock success since MCP integration needs to be set up
-    // In a real implementation, you would use:
-    // const mcpClient = getSupabaseClient(mcpInstance);
-    // const result = await mcpClient.upsert('places', placeData);
+    const result = await PlacesService.upsertPlace(placeData);
 
-    console.log('Ingest request received:', placeData);
+    if (!result) {
+      return NextResponse.json(
+        { error: 'Failed to save place' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data: {
-        id: 'mock-id-' + Date.now(),
-        ...placeData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
+      data: result,
     });
 
   } catch (error) {

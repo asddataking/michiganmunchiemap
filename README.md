@@ -5,9 +5,9 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
 ## 🧩 Architecture
 
 - **Frontend**: Next.js 15 + TypeScript + Tailwind + shadcn/ui
-- **Backend**: Supabase Postgres + PostGIS (via MCP server)
+- **Backend**: Supabase Postgres + PostGIS (via Supabase JS SDK)
 - **Map**: MapLibre GL JS (MapTiler tiles, fallback Mapbox)
-- **Auth**: Supabase MCP (admin-only, no public sign-ups)
+- **Auth**: Supabase Auth (admin-only, no public sign-ups)
 - **Storage**: Supabase Storage (for hero images)
 - **Hosting**: Vercel
 
@@ -38,24 +38,9 @@ A map-first food directory for Michigan built with Next.js 15, MapLibre GL, and 
    npm install
    ```
 
-2. **Set up Supabase MCP**
+2. **Set up Supabase**
    
-   Update `.cursor/config.json` with your Supabase credentials:
-   ```json
-   {
-     "mcpServers": {
-       "supabase": {
-         "command": "npx",
-         "args": ["@modelcontextprotocol/server-supabase"],
-         "env": {
-           "SUPABASE_URL": "https://your-project.supabase.co",
-           "SUPABASE_ANON_KEY": "your-anon-key",
-           "SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key"
-         }
-       }
-     }
-   }
-   ```
+   Create a Supabase project and get your credentials from the project settings.
 
 3. **Environment Variables**
    
@@ -124,21 +109,21 @@ CREATE TABLE places (
 );
 ```
 
-## 🔐 MCP Usage
+## 🔐 Supabase Usage
 
-All database operations use the Supabase MCP client instead of the Supabase JS SDK:
+All database operations use the Supabase JS SDK:
 
 ```typescript
-import { getSupabaseClient } from '@/lib/supabase-mcp';
+import { PlacesService } from '@/lib/supabase';
 
 // Get places within bounds
-const result = await mcpClient.getPlacesInBounds(minLng, minLat, maxLng, maxLat);
+const places = await PlacesService.getPlacesInBounds(minLng, minLat, maxLng, maxLat);
 
 // Search places with filters
-const result = await mcpClient.searchPlaces(searchTerm, filters);
+const places = await PlacesService.searchPlaces(searchTerm, filters);
 
 // Upsert place data
-const result = await mcpClient.upsert('places', placeData);
+const place = await PlacesService.upsertPlace(placeData);
 ```
 
 ## 🌍 API Endpoints
@@ -227,9 +212,9 @@ npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript check
 ```
 
-### MCP Integration
+### Supabase Integration
 
-The project uses Model Context Protocol (MCP) for Supabase integration. The MCP client is configured in `.cursor/config.json` and provides a typed interface for all database operations.
+The project uses the Supabase JS SDK for database operations. All database interactions are handled through the `PlacesService` class which provides a clean, typed interface for common operations.
 
 ## 📝 License
 
