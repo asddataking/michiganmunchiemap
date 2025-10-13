@@ -84,7 +84,7 @@ export default function MapPage() {
   // Load initial places ONCE only
   useEffect(() => {
     loadAllPlaces();
-  }, []); // Empty dependency array ensures this runs only once
+  }, [loadAllPlaces]); // Include loadAllPlaces in dependencies
 
   // Extract available filter options from places
   useEffect(() => {
@@ -207,7 +207,7 @@ export default function MapPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isCacheValid]);
 
   // Filter places by bounds (client-side filtering)
   const filterPlacesByBounds = (places: Place[], minLng: number, minLat: number, maxLng: number, maxLat: number) => {

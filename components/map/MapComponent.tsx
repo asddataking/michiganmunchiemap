@@ -138,36 +138,47 @@ const MapComponent: React.FC<MapComponentProps> = ({
     );
   }, []);
 
-  // Add markers for places
-  useEffect(() => {
-    if (!map.current || !mapLoaded) return;
-    
-    console.log('MapComponent: Received places:', places.length, places.map(p => p.name));
-    
-    // If no places, just show the empty map
-    if (!places.length) return;
+  // Create clusters based on zoom level
+  const createClusters = useCallback((places: Place[], zoom: number): ClusterPoint[] => {
+    // Much smaller clustering distance to prevent over-clustering
+    const clusterDistance = zoom < 8 ? 20 : zoom < 12 ? 10 : 5; // km
+    const clusters: ClusterPoint[] = [];
+    const processed = new Set<string>();
 
-    // Clear existing markers
-    const existingMarkers = document.querySelectorAll('.place-marker');
-    existingMarkers.forEach(marker => marker.remove());
+    places.forEach((place) => {
+      if (processed.has(place.id)) return;
 
-    // Create clusters for better performance
-    const clusters = createClusters(places, map.current.getZoom());
-    console.log('MapComponent: Created clusters:', clusters.length, clusters.map(c => ({ count: c.count, places: c.places.map(p => p.name) })));
+      const cluster: ClusterPoint = {
+        id: place.id,
+        coordinates: place.location.coordinates,
+        count: 1,
+        places: [place],
+      };
 
-    clusters.forEach((cluster) => {
-      if (cluster.count === 1) {
-        // Single place marker
-        const place = cluster.places[0];
-        console.log('MapComponent: Creating marker for:', place.name);
-        createPlaceMarker(place);
-      } else {
-        // Cluster marker
-        console.log('MapComponent: Creating cluster marker for:', cluster.places.map(p => p.name));
-        createClusterMarker(cluster);
-      }
+      // Find nearby places to cluster
+      places.forEach((otherPlace) => {
+        if (processed.has(otherPlace.id) || place.id === otherPlace.id) return;
+
+        const distance = calculateDistance(
+          place.location.coordinates[1],
+          place.location.coordinates[0],
+          otherPlace.location.coordinates[1],
+          otherPlace.location.coordinates[0]
+        );
+
+        if (distance < clusterDistance) {
+          cluster.count++;
+          cluster.places.push(otherPlace);
+          processed.add(otherPlace.id);
+        }
+      });
+
+      clusters.push(cluster);
+      processed.add(place.id);
     });
-  }, [places, mapLoaded, selectedPlace, createClusters, createPlaceMarker, createClusterMarker]);
+
+    return clusters;
+  }, []);
 
   const createPlaceMarker = useCallback((place: Place) => {
     if (!map.current) return;
@@ -263,47 +274,36 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .addTo(map.current);
   }, []);
 
-  // Create clusters based on zoom level
-  const createClusters = useCallback((places: Place[], zoom: number): ClusterPoint[] => {
-    // Much smaller clustering distance to prevent over-clustering
-    const clusterDistance = zoom < 8 ? 20 : zoom < 12 ? 10 : 5; // km
-    const clusters: ClusterPoint[] = [];
-    const processed = new Set<string>();
+  // Add markers for places
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+    
+    console.log('MapComponent: Received places:', places.length, places.map(p => p.name));
+    
+    // If no places, just show the empty map
+    if (!places.length) return;
 
-    places.forEach((place) => {
-      if (processed.has(place.id)) return;
+    // Clear existing markers
+    const existingMarkers = document.querySelectorAll('.place-marker');
+    existingMarkers.forEach(marker => marker.remove());
 
-      const cluster: ClusterPoint = {
-        id: place.id,
-        coordinates: place.location.coordinates,
-        count: 1,
-        places: [place],
-      };
+    // Create clusters for better performance
+    const clusters = createClusters(places, map.current.getZoom());
+    console.log('MapComponent: Created clusters:', clusters.length, clusters.map(c => ({ count: c.count, places: c.places.map(p => p.name) })));
 
-      // Find nearby places to cluster
-      places.forEach((otherPlace) => {
-        if (processed.has(otherPlace.id) || place.id === otherPlace.id) return;
-
-        const distance = calculateDistance(
-          place.location.coordinates[1],
-          place.location.coordinates[0],
-          otherPlace.location.coordinates[1],
-          otherPlace.location.coordinates[0]
-        );
-
-        if (distance < clusterDistance) {
-          cluster.count++;
-          cluster.places.push(otherPlace);
-          processed.add(otherPlace.id);
-        }
-      });
-
-      clusters.push(cluster);
-      processed.add(place.id);
+    clusters.forEach((cluster) => {
+      if (cluster.count === 1) {
+        // Single place marker
+        const place = cluster.places[0];
+        console.log('MapComponent: Creating marker for:', place.name);
+        createPlaceMarker(place);
+      } else {
+        // Cluster marker
+        console.log('MapComponent: Creating cluster marker for:', cluster.places.map(p => p.name));
+        createClusterMarker(cluster);
+      }
     });
-
-    return clusters;
-  }, []);
+  }, [places, mapLoaded, selectedPlace, createClusters, createPlaceMarker, createClusterMarker]);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371; // Earth's radius in km
