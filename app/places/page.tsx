@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PlaceCard from '@/components/places/PlaceCard';
@@ -8,6 +9,7 @@ import { Place } from '@/types';
 import { PlacesService } from '@/lib/supabase';
 
 export default function PlacesPage() {
+  const router = useRouter();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +58,7 @@ export default function PlacesPage() {
                   <PlaceCard
                     key={place.id}
                     place={place}
-                    onClick={() => window.location.href = `/place/${place.slug}`}
+                    onClick={() => router.push(`/place/${place.slug}`)}
                   />
                 ))}
               </div>

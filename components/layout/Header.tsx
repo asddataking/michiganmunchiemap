@@ -15,7 +15,14 @@ const Header: React.FC = () => {
         </Link>
 
         <nav className="flex items-center space-x-4">
-          <Link href="/">
+          <Link href="/home">
+            <Button variant="ghost" size="sm">
+              <MapPin className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+          </Link>
+          
+          <Link href="/map">
             <Button variant="ghost" size="sm">
               <MapPin className="h-4 w-4 mr-2" />
               Map

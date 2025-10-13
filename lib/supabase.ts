@@ -1,8 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Place } from '@/types';
+import { calculateDistance } from '@/lib/utils';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+console.log('Supabase config:', { 
+  url: supabaseUrl ? 'Set' : 'Missing', 
+  key: supabaseAnonKey ? 'Set' : 'Missing' 
+});
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
@@ -54,36 +60,91 @@ export class PlacesService {
     maxLat: number,
     limit: number = 200
   ): Promise<Place[]> {
-    const { data, error } = await supabase.rpc('get_places_in_bounds', {
-      min_lng: minLng,
-      min_lat: minLat,
-      max_lng: maxLng,
-      max_lat: maxLat,
-      limit_count: limit,
-    });
+    try {
+      console.log('PlacesService.getPlacesInBounds called with:', { minLng, minLat, maxLng, maxLat, limit });
+      
+      // Use RPC function that properly converts location to GeoJSON
+      const rpcParams = {
+        min_lng: minLng,
+        min_lat: minLat,
+        max_lng: maxLng,
+        max_lat: maxLat,
+        limit_count: limit,
+      };
+      
+      console.log('Calling RPC with params:', rpcParams);
+      
+      const result = await supabase.rpc('get_places_in_bounds', rpcParams);
+      
+      console.log('Raw RPC result:', result);
+      console.log('RPC result type:', typeof result);
+      console.log('RPC result keys:', Object.keys(result || {}));
 
-    if (error) {
-      console.error('Error fetching places in bounds:', error);
-      return [];
+      const { data, error } = result;
+
+      console.log('Supabase RPC result:', { data, error });
+
+      if (error) {
+        console.error('Error fetching places in bounds:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Error type:', typeof error);
+        return [];
+      }
+
+      console.log('Loaded places from RPC:', data);
+      return data || [];
+    } catch (err) {
+      console.error('Error in getPlacesInBounds:', err);
+      console.error('Error type:', typeof err);
+      console.error('Error stack:', err instanceof Error ? err.stack : 'No stack');
+      
+      // Fallback: try direct query without location conversion
+      console.log('Trying fallback direct query...');
+      try {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('places')
+          .select('*')
+          .eq('status', 'published')
+          .order('is_featured', { ascending: false })
+          .order('rating', { ascending: false, nullsFirst: false })
+          .limit(limit);
+
+        if (fallbackError) {
+          console.error('Fallback query also failed:', fallbackError);
+          return [];
+        }
+
+        console.log('Fallback query succeeded, got', fallbackData?.length, 'places');
+        return fallbackData || [];
+      } catch (fallbackErr) {
+        console.error('Fallback query failed:', fallbackErr);
+        return [];
+      }
     }
-
-    return data || [];
   }
 
   static async getPlaceBySlug(slug: string): Promise<Place | null> {
-    const { data, error } = await supabase
-      .from('places')
-      .select('*')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
+    // Use RPC function to get proper GeoJSON location data
+    try {
+      const { data, error } = await supabase.rpc('get_place_by_slug', {
+        place_slug: slug,
+      });
 
-    if (error) {
-      console.error('Error fetching place by slug:', error);
+      if (error) {
+        console.error('Error fetching place by slug:', error);
+        return null;
+      }
+
+      // The RPC function returns an array, so we need to get the first element
+      if (data && Array.isArray(data) && data.length > 0) {
+        return data[0];
+      }
+
+      return null;
+    } catch (err) {
+      console.error('Error in getPlaceBySlug:', err);
       return null;
     }
-
-    return data;
   }
 
   static async getNearbyPlaces(
@@ -92,19 +153,25 @@ export class PlacesService {
     radiusMiles: number = 5,
     limit: number = 10
   ): Promise<Place[]> {
-    const { data, error } = await supabase.rpc('get_nearby_places', {
-      lng,
-      lat,
-      radius_miles: radiusMiles,
-      limit_count: limit,
-    });
+    try {
+      // Use RPC function that properly converts location to GeoJSON
+      const { data, error } = await supabase.rpc('get_nearby_places', {
+        center_lng: lng,
+        center_lat: lat,
+        radius_miles: radiusMiles,
+        limit_count: limit,
+      });
 
-    if (error) {
-      console.error('Error fetching nearby places:', error);
+      if (error) {
+        console.error('Error fetching nearby places:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (err) {
+      console.error('Error in getNearbyPlaces:', err);
       return [];
     }
-
-    return data || [];
   }
 
   static async searchPlaces(
@@ -120,67 +187,31 @@ export class PlacesService {
     } = {},
     limit: number = 50
   ): Promise<Place[]> {
-    let query = supabase
-      .from('places')
-      .select('*')
-      .eq('status', 'published');
+    // Use RPC function for search to get proper GeoJSON location data
+    try {
+      const { data, error } = await supabase.rpc('search_places', {
+        search_text: searchTerm || null,
+        county_filter: filters.counties?.length ? filters.counties : null,
+        cuisine_filter: filters.cuisines?.length ? filters.cuisines : null,
+        tag_filter: filters.tags?.length ? filters.tags : null,
+        min_price: filters.priceRange?.[0] || 1,
+        max_price: filters.priceRange?.[1] || 4,
+        min_rating: filters.minRating || 0,
+        featured_only: filters.featured || false,
+        verified_only: filters.verified || false,
+        limit_count: limit,
+      });
 
-    // Search term
-    if (searchTerm) {
-      query = query.or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%,county.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%`);
-    }
+      if (error) {
+        console.error('Error searching places:', error);
+        return [];
+      }
 
-    // County filter
-    if (filters.counties?.length) {
-      query = query.in('county', filters.counties);
-    }
-
-    // Cuisine filter
-    if (filters.cuisines?.length) {
-      query = query.overlaps('cuisines', filters.cuisines);
-    }
-
-    // Tags filter
-    if (filters.tags?.length) {
-      query = query.overlaps('tags', filters.tags);
-    }
-
-    // Price range filter
-    if (filters.priceRange) {
-      query = query
-        .gte('price_level', filters.priceRange[0])
-        .lte('price_level', filters.priceRange[1]);
-    }
-
-    // Rating filter
-    if (filters.minRating) {
-      query = query.gte('rating', filters.minRating);
-    }
-
-    // Featured filter
-    if (filters.featured) {
-      query = query.eq('is_featured', true);
-    }
-
-    // Verified filter
-    if (filters.verified) {
-      query = query.eq('is_verified', true);
-    }
-
-    // Ordering and limit
-    query = query
-      .order('is_featured', { ascending: false })
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(limit);
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error searching places:', error);
+      return data || [];
+    } catch (err) {
+      console.error('Error in searchPlaces:', err);
       return [];
     }
-
-    return data || [];
   }
 
   static async upsertPlace(placeData: Partial<Place>): Promise<Place | null> {

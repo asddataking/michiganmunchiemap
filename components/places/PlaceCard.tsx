@@ -21,7 +21,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
   onClick,
   className,
 }) => {
-  const distance = userLocation
+  const distance = userLocation && place.location?.coordinates && place.location.coordinates.length >= 2
     ? calculateDistance(
         userLocation[1],
         userLocation[0],

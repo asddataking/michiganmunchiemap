@@ -104,14 +104,14 @@ const PlaceFilters: React.FC<PlaceFiltersProps> = ({
           <div>
             <label className="text-sm font-medium mb-2 block">County</label>
             <Select
-              value={filters.counties[0] || ''}
-              onValueChange={(value) => handleFilterChange('counties', value ? [value] : [])}
+              value={filters.counties[0] || 'all'}
+              onValueChange={(value) => handleFilterChange('counties', value === 'all' ? [] : [value])}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select county" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Counties</SelectItem>
+                <SelectItem value="all">All Counties</SelectItem>
                 {availableCounties.map((county) => (
                   <SelectItem key={county} value={county}>
                     {county}

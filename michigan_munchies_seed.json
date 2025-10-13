@@ -1,0 +1,163 @@
+[
+  {
+    "id": "a462c357-eab4-4624-b39d-0050fa488dc1",
+    "name": "Pink Garlic",
+    "slug": "pink-garlic-shelby-township",
+    "city": "Shelby Township, MI",
+    "type": "restaurant",
+    "category": "Food",
+    "cuisines": [
+      "Indian"
+    ],
+    "address": null,
+    "phone": null,
+    "website": null,
+    "instagram": null,
+    "tiktok": null,
+    "hours": null,
+    "geocode": {
+      "lat": null,
+      "lng": null,
+      "place_id": null
+    },
+    "tags": [
+      "Michigan Munchie Map",
+      "User Submission"
+    ],
+    "status": "pending_verification",
+    "notes": "Added per user request. Indian food.",
+    "source": "user_submission",
+    "created_at": "2025-10-13T20:25:16Z",
+    "updated_at": "2025-10-13T20:25:16Z"
+  },
+  {
+    "id": "05287be3-d408-4b9e-a8cf-da37b62e7107",
+    "name": "Lovaburger",
+    "slug": "lovaburger-chesterfield",
+    "city": "Chesterfield, MI",
+    "type": "restaurant",
+    "category": "Food",
+    "cuisines": [
+      "American",
+      "Burgers"
+    ],
+    "address": null,
+    "phone": null,
+    "website": null,
+    "instagram": null,
+    "tiktok": null,
+    "hours": null,
+    "geocode": {
+      "lat": null,
+      "lng": null,
+      "place_id": null
+    },
+    "tags": [
+      "Michigan Munchie Map",
+      "User Submission"
+    ],
+    "status": "pending_verification",
+    "notes": "Added per user request. American burger spot.",
+    "source": "user_submission",
+    "created_at": "2025-10-13T20:25:16Z",
+    "updated_at": "2025-10-13T20:25:16Z"
+  },
+  {
+    "id": "b4e4c2fd-10aa-4d20-9ce9-fee6130f44ca",
+    "name": "Fort Gratiot Nutrition",
+    "slug": "fort-gratiot-nutrition-fort-gratiot",
+    "city": "Fort Gratiot, MI",
+    "type": "drink_bar",
+    "category": "Drinks",
+    "cuisines": [
+      "Smoothies",
+      "Juice",
+      "Tea"
+    ],
+    "address": null,
+    "phone": null,
+    "website": null,
+    "instagram": null,
+    "tiktok": null,
+    "hours": null,
+    "geocode": {
+      "lat": null,
+      "lng": null,
+      "place_id": null
+    },
+    "tags": [
+      "Michigan Munchie Map",
+      "User Submission"
+    ],
+    "status": "pending_verification",
+    "notes": "Added per user request. Drinks including smoothies.",
+    "source": "user_submission",
+    "created_at": "2025-10-13T20:25:16Z",
+    "updated_at": "2025-10-13T20:25:16Z"
+  },
+  {
+    "id": "94a787fc-0206-4fd7-8127-f46b1635e4c9",
+    "name": "Lexington Nutrition",
+    "slug": "lexington-nutrition-lexington",
+    "city": "Lexington, MI",
+    "type": "drink_bar",
+    "category": "Drinks",
+    "cuisines": [
+      "Smoothies",
+      "Juice",
+      "Tea"
+    ],
+    "address": null,
+    "phone": null,
+    "website": null,
+    "instagram": null,
+    "tiktok": null,
+    "hours": null,
+    "geocode": {
+      "lat": null,
+      "lng": null,
+      "place_id": null
+    },
+    "tags": [
+      "Michigan Munchie Map",
+      "User Submission"
+    ],
+    "status": "pending_verification",
+    "notes": "Added per user request. Drinks including smoothies.",
+    "source": "user_submission",
+    "created_at": "2025-10-13T20:25:16Z",
+    "updated_at": "2025-10-13T20:25:16Z"
+  },
+  {
+    "id": "651d1ee1-e097-45f0-8e33-4df71ea5c1c2",
+    "name": "Pizza de Palazoo",
+    "slug": "pizza-de-palazoo-royal-oak",
+    "city": "Royal Oak, MI",
+    "type": "restaurant",
+    "category": "Food",
+    "cuisines": [
+      "Pizza",
+      "Italian"
+    ],
+    "address": null,
+    "phone": null,
+    "website": null,
+    "instagram": null,
+    "tiktok": null,
+    "hours": null,
+    "geocode": {
+      "lat": null,
+      "lng": null,
+      "place_id": null
+    },
+    "tags": [
+      "Michigan Munchie Map",
+      "User Submission"
+    ],
+    "status": "pending_verification",
+    "notes": "Added per user request. Pizza spot.",
+    "source": "user_submission",
+    "created_at": "2025-10-13T20:25:16Z",
+    "updated_at": "2025-10-13T20:25:16Z"
+  }
+]

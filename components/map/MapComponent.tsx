@@ -48,8 +48,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
       mapConfig = {
         container: mapContainer.current,
         style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapTilerKey}`,
-        center: [-82.7404, 43.0156] as [number, number], // Center of St. Clair County, MI
-        zoom: 10,
+        center: [-82.8, 42.8] as [number, number], // Center to include all our places
+        zoom: 9,
         maxZoom: 18,
         minZoom: 5,
       };
@@ -78,8 +78,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
             }
           ]
         },
-        center: [-82.7404, 43.0156] as [number, number], // Center of St. Clair County, MI
-        zoom: 10,
+        center: [-82.8, 42.8] as [number, number], // Center to include all our places
+        zoom: 9,
         maxZoom: 18,
         minZoom: 5,
       };
@@ -142,6 +142,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (!map.current || !mapLoaded) return;
     
+    console.log('MapComponent: Received places:', places.length, places.map(p => p.name));
+    
     // If no places, just show the empty map
     if (!places.length) return;
 
@@ -151,14 +153,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
     // Create clusters for better performance
     const clusters = createClusters(places, map.current.getZoom());
+    console.log('MapComponent: Created clusters:', clusters.length, clusters.map(c => ({ count: c.count, places: c.places.map(p => p.name) })));
 
     clusters.forEach((cluster) => {
       if (cluster.count === 1) {
         // Single place marker
         const place = cluster.places[0];
+        console.log('MapComponent: Creating marker for:', place.name);
         createPlaceMarker(place);
       } else {
         // Cluster marker
+        console.log('MapComponent: Creating cluster marker for:', cluster.places.map(p => p.name));
         createClusterMarker(cluster);
       }
     });
@@ -166,6 +171,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
   const createPlaceMarker = (place: Place) => {
     if (!map.current) return;
+
+    console.log('MapComponent: Creating marker for place:', place.name, 'at coordinates:', place.location.coordinates);
 
     const el = document.createElement('div');
     el.className = 'place-marker';
@@ -210,9 +217,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
       }
     });
 
-    new maplibregl.Marker(el)
+    const marker = new maplibregl.Marker(el)
       .setLngLat(place.location.coordinates)
       .addTo(map.current);
+    
+    console.log('MapComponent: Marker added to map for:', place.name);
   };
 
   const createClusterMarker = (cluster: ClusterPoint) => {
@@ -256,7 +265,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
   // Create clusters based on zoom level
   const createClusters = (places: Place[], zoom: number): ClusterPoint[] => {
-    const clusterDistance = zoom < 8 ? 100 : zoom < 12 ? 50 : 25; // km
+    // Much smaller clustering distance to prevent over-clustering
+    const clusterDistance = zoom < 8 ? 20 : zoom < 12 ? 10 : 5; // km
     const clusters: ClusterPoint[] = [];
     const processed = new Set<string>();
 

@@ -1,0 +1,6 @@
+name,address,city,county,state,zip,latitude,longitude,cuisines,tags,price_level,rating,website,phone,ig_url,is_featured,is_verified
+"Lov-A Burger Grill & Cafe","49660 Gratiot Ave, Chesterfield, MI 48051","Chesterfield","Macomb","MI","48051","42.67","-82.84","American,Burgers","Michigan Munchie Map,Featured Restaurant,Local Favorite,Hand-cut Fries,Fresh Ingredients","2","4.5","http://lovaburger.letseat.at/","(586) 221-1088","","true","true"
+"Pink Garlic","","Shelby Township","Macomb","MI","","42.67","-83.03","Indian","Michigan Munchie Map,User Submission","2","","","","","false","false"
+"Fort Gratiot Nutrition","","Fort Gratiot","St. Clair","MI","","43.08","-82.48","Smoothies,Juice,Tea","Michigan Munchie Map,User Submission","2","","","","","false","false"
+"Lexington Nutrition","","Lexington","Sanilac","MI","","43.27","-82.53","Smoothies,Juice,Tea","Michigan Munchie Map,User Submission","2","","","","","false","false"
+"Pizza de Palazoo","","Royal Oak","Oakland","MI","","42.49","-83.14","Pizza,Italian","Michigan Munchie Map,User Submission","2","","","","","false","false"

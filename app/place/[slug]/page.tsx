@@ -110,6 +110,12 @@ export default async function PlacePage({ params }: PageProps) {
     notFound();
   }
 
+  // Check if place has valid location coordinates
+  if (!place.location || !place.location.coordinates || place.location.coordinates.length < 2) {
+    console.error('Place missing valid location coordinates:', place);
+    notFound();
+  }
+
   // Get nearby places
   const nearbyPlaces = await PlacesService.getNearbyPlaces(
     place.location.coordinates[0],
