@@ -81,10 +81,67 @@ export default function MapPage() {
     }
   }, []);
 
+  // Check if cached data is still valid
+  const isCacheValid = useCallback(() => {
+    if (!placesCacheRef.current) return false;
+    const now = Date.now();
+    return (now - placesCacheRef.current.timestamp) < CACHE_DURATION;
+  }, []);
+
+  // Load all places once and cache them
+  const loadAllPlaces = useCallback(async () => {
+    // Prevent multiple loads
+    if (hasLoadedRef.current) {
+      console.log('Already loaded, skipping');
+      return;
+    }
+
+    if (isCacheValid()) {
+      console.log('Using cached places data');
+      setPlaces(placesCacheRef.current!.data);
+      setLoading(false);
+      hasLoadedRef.current = true;
+      return;
+    }
+
+    console.log('Loading fresh places data from API (ONE TIME ONLY)');
+    setLoading(true);
+    setError(null);
+    hasLoadedRef.current = true;
+
+    try {
+      // Load all places with a wide bounds to get everything
+      const places = await PlacesService.getPlacesInBounds(-85.0, 41.0, -81.0, 45.0, 1000);
+      console.log('Loaded places:', places);
+      
+      // Cache the data
+      placesCacheRef.current = {
+        data: places,
+        timestamp: Date.now()
+      };
+      
+      setPlaces(places);
+    } catch (err) {
+      setError('Failed to load places');
+      console.error('Error loading places:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [isCacheValid]);
+
+  // Filter places by bounds (client-side filtering)
+  const filterPlacesByBounds = (places: Place[], minLng: number, minLat: number, maxLng: number, maxLat: number) => {
+    return places.filter(place => {
+      if (!place.location?.coordinates) return false;
+      const [lng, lat] = place.location.coordinates;
+      return lng >= minLng && lng <= maxLng && lat >= minLat && lat <= maxLat;
+    });
+  };
+
   // Load initial places ONCE only
   useEffect(() => {
     loadAllPlaces();
-  }, [loadAllPlaces]); // Include loadAllPlaces in dependencies
+  }, [loadAllPlaces]);
 
   // Extract available filter options from places
   useEffect(() => {
@@ -160,63 +217,6 @@ export default function MapPage() {
 
     setFilteredPlaces(filtered);
   }, [places, searchTerm, filters]);
-
-  // Check if cached data is still valid
-  const isCacheValid = () => {
-    if (!placesCacheRef.current) return false;
-    const now = Date.now();
-    return (now - placesCacheRef.current.timestamp) < CACHE_DURATION;
-  };
-
-  // Load all places once and cache them
-  const loadAllPlaces = useCallback(async () => {
-    // Prevent multiple loads
-    if (hasLoadedRef.current) {
-      console.log('Already loaded, skipping');
-      return;
-    }
-
-    if (isCacheValid()) {
-      console.log('Using cached places data');
-      setPlaces(placesCacheRef.current!.data);
-      setLoading(false);
-      hasLoadedRef.current = true;
-      return;
-    }
-
-    console.log('Loading fresh places data from API (ONE TIME ONLY)');
-    setLoading(true);
-    setError(null);
-    hasLoadedRef.current = true;
-
-    try {
-      // Load all places with a wide bounds to get everything
-      const places = await PlacesService.getPlacesInBounds(-85.0, 41.0, -81.0, 45.0, 1000);
-      console.log('Loaded places:', places);
-      
-      // Cache the data
-      placesCacheRef.current = {
-        data: places,
-        timestamp: Date.now()
-      };
-      
-      setPlaces(places);
-    } catch (err) {
-      setError('Failed to load places');
-      console.error('Error loading places:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [isCacheValid]);
-
-  // Filter places by bounds (client-side filtering)
-  const filterPlacesByBounds = (places: Place[], minLng: number, minLat: number, maxLng: number, maxLat: number) => {
-    return places.filter(place => {
-      if (!place.location?.coordinates) return false;
-      const [lng, lat] = place.location.coordinates;
-      return lng >= minLng && lng <= maxLng && lat >= minLat && lat <= maxLat;
-    });
-  };
 
   const loadPlacesInBounds = async (minLng: number, minLat: number, maxLng: number, maxLat: number) => {
     console.log('Bounds changed but showing ALL places (no filtering):', { minLng, minLat, maxLng, maxLat });
