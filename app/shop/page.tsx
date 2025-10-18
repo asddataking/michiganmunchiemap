@@ -28,76 +28,9 @@ async function loadProducts(): Promise<Product[]> {
     if (!res.ok) throw new Error('Failed to fetch products');
     const data = await res.json();
     return Array.isArray(data) ? data : [];
-  } catch {
-    // Fallback demo products
-    return [
-      {
-        id: "1",
-        name: "DankNDevour T-Shirt",
-        description: "Premium quality cotton t-shirt featuring the DankNDevour logo. Perfect for food and cannabis culture enthusiasts.",
-        price: 29.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Apparel",
-        inStock: true,
-        checkoutUrl: "https://fourthwall.com/dankndevour/tshirt"
-      },
-      {
-        id: "2",
-        name: "Michigan Munchie Map Hoodie",
-        description: "Comfortable hoodie with the iconic Michigan Munchie Map design. Stay warm while exploring Michigan's food scene.",
-        price: 49.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Apparel",
-        inStock: true,
-        checkoutUrl: "https://fourthwall.com/dankndevour/hoodie"
-      },
-      {
-        id: "3",
-        name: "Cannabis Culture Sticker Pack",
-        description: "Set of 10 high-quality vinyl stickers featuring cannabis culture designs and Michigan landmarks.",
-        price: 12.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Accessories",
-        inStock: true,
-        checkoutUrl: "https://fourthwall.com/dankndevour/stickers"
-      },
-      {
-        id: "4",
-        name: "DankPass Premium Membership",
-        description: "Exclusive access to premium content, early episode releases, and member-only events. Join the community!",
-        price: 9.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Membership",
-        inStock: true,
-        checkoutUrl: "https://dankpass.com/membership"
-      },
-      {
-        id: "5",
-        name: "Foodie Adventure Guide",
-        description: "Digital guidebook featuring Michigan's best hidden food gems, complete with maps and recommendations.",
-        price: 19.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Digital",
-        inStock: true,
-        checkoutUrl: "https://fourthwall.com/dankndevour/guide"
-      },
-      {
-        id: "6",
-        name: "Michigan Cannabis Dispensary Map",
-        description: "Comprehensive map of Michigan's top cannabis dispensaries with reviews and product recommendations.",
-        price: 14.99,
-        currency: "USD",
-        image: "/api/placeholder/300/300",
-        category: "Digital",
-        inStock: false,
-        checkoutUrl: "https://fourthwall.com/dankndevour/cannabis-map"
-      }
-    ];
+  } catch (error) {
+    console.error('Error loading products:', error);
+    return [];
   }
 }
 

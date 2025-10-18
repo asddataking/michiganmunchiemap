@@ -43,15 +43,9 @@ async function loadLatest(limit = 8): Promise<Place[]> {
     if (!res.ok) throw new Error("Bad status");
     const data = await res.json();
     return Array.isArray(data) ? data : (data.data || []);
-  } catch {
-    // Fallback demo items for local/dev
-    return [
-      { id: "1", name: "Pink Garlic", slug: "pink-garlic-shelby-township", city: "Shelby Township, MI", cuisines: ["Indian"] },
-      { id: "2", name: "Lovaburger", slug: "lovaburger-chesterfield", city: "Chesterfield, MI", cuisines: ["American","Burgers"] },
-      { id: "3", name: "Fort Gratiot Nutrition", slug: "fort-gratiot-nutrition", city: "Fort Gratiot, MI", cuisines: ["Smoothies","Tea"] },
-      { id: "4", name: "Lexington Nutrition", slug: "lexington-nutrition", city: "Lexington, MI", cuisines: ["Smoothies","Tea"] },
-      { id: "5", name: "Pizza de Palazoo", slug: "pizza-de-palazoo-royal-oak", city: "Royal Oak, MI", cuisines: ["Pizza"] },
-    ];
+  } catch (error) {
+    console.error('Error loading places:', error);
+    return [];
   }
 }
 
@@ -61,34 +55,9 @@ async function loadEpisodes(limit = 3): Promise<Episode[]> {
     if (!res.ok) throw new Error("Bad status");
     const data = await res.json();
     return Array.isArray(data) ? data : [];
-  } catch {
-    // Fallback demo episodes
-    return [
-      {
-        id: "1",
-        title: "Detroit's Hidden Pizza Gems",
-        description: "Exploring the best pizza spots in Detroit that locals don't want you to know about.",
-        thumbnail: "/api/placeholder/400/225",
-        publishedAt: "2024-01-15",
-        videoId: "demo1"
-      },
-      {
-        id: "2", 
-        title: "Cannabis Culture in Ann Arbor",
-        description: "A deep dive into Ann Arbor's thriving cannabis community and culture.",
-        thumbnail: "/api/placeholder/400/225",
-        publishedAt: "2024-01-10",
-        videoId: "demo2"
-      },
-      {
-        id: "3",
-        title: "Food Truck Friday Adventures",
-        description: "Hunting down the best food trucks across Michigan's major cities.",
-        thumbnail: "/api/placeholder/400/225",
-        publishedAt: "2024-01-05",
-        videoId: "demo3"
-      }
-    ];
+  } catch (error) {
+    console.error('Error loading episodes:', error);
+    return [];
   }
 }
 
