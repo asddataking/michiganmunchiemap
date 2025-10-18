@@ -12,50 +12,16 @@ type Episode = {
   viewCount?: number;
 };
 
-// Mock episodes as fallback
-const mockEpisodes: Episode[] = [
-  {
-    id: "1",
-    title: "Detroit's Hidden Pizza Gems",
-    description: "Exploring the best pizza spots in Detroit that locals don't want you to know about. From deep dish to thin crust, we uncover the city's most authentic pizza experiences.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2024-01-15T00:00:00Z",
-    videoId: "demo1",
-    duration: "12:34",
-    viewCount: 15420
-  },
-  {
-    id: "2", 
-    title: "Cannabis Culture in Ann Arbor",
-    description: "A deep dive into Ann Arbor's thriving cannabis community and culture. We explore dispensaries, consumption lounges, and the local scene.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2024-01-10T00:00:00Z",
-    videoId: "demo2",
-    duration: "18:45",
-    viewCount: 22150
-  },
-  {
-    id: "3",
-    title: "Food Truck Friday Adventures",
-    description: "Hunting down the best food trucks across Michigan's major cities. From tacos to BBQ, we find the mobile kitchens serving up incredible flavors.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2024-01-05T00:00:00Z",
-    videoId: "demo3",
-    duration: "15:22",
-    viewCount: 18930
-  }
-];
-
 async function fetchYouTubeEpisodes(): Promise<Episode[]> {
   try {
     const rssUrl = process.env.YOUTUBE_RSS_URL;
     
     if (!rssUrl) {
-      console.log('No YouTube RSS URL configured, using mock data');
-      return mockEpisodes;
+      console.log('❌ No YouTube RSS URL configured');
+      throw new Error('YOUTUBE_RSS_URL environment variable not set');
     }
 
-    console.log('Fetching YouTube RSS feed:', rssUrl);
+    console.log('📺 Fetching YouTube RSS feed:', rssUrl);
     
     const parser = new Parser({
       customFields: {
@@ -72,8 +38,8 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
     const feed = await parser.parseURL(rssUrl);
     
     if (!feed.items || feed.items.length === 0) {
-      console.log('No items found in RSS feed, using mock data');
-      return mockEpisodes;
+      console.log('❌ No items found in RSS feed');
+      throw new Error('No videos found in RSS feed');
     }
 
     const episodes: Episode[] = feed.items.map((item, index) => {
@@ -82,9 +48,8 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
                      item.link?.match(/youtu\.be\/([^?]+)/)?.[1] || 
                      `video-${index}`;
       
-      // Extract thumbnail URL
-      const thumbnail = item['media:thumbnail']?.['$']?.url || 
-                       `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      // Generate proper YouTube thumbnail URL
+      const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       
       // Clean up description
       const description = item.contentSnippet || item.content || item.description || '';
@@ -101,13 +66,12 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       };
     });
 
-    console.log(`Successfully parsed ${episodes.length} episodes from YouTube RSS`);
+    console.log(`✅ Successfully parsed ${episodes.length} episodes from YouTube RSS`);
     return episodes;
     
   } catch (error) {
-    console.error('Error fetching YouTube episodes:', error);
-    console.log('Falling back to mock data');
-    return mockEpisodes;
+    console.error('❌ Error fetching YouTube episodes:', error);
+    throw error; // Re-throw instead of returning mock data
   }
 }
 
