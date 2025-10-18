@@ -50,15 +50,17 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       console.log(`📺 Processing item ${index}:`, {
         title: item.title,
         link: item.link,
-        extractedVideoId: videoId
+        extractedVideoId: videoId,
+        rawItem: JSON.stringify(item, null, 2)
       });
       
       if (!videoId) {
         console.log(`⚠️ Could not extract video ID from: ${item.link}`);
+        console.log(`⚠️ Full item data:`, item);
         videoId = `video-${index}`;
       }
       
-        // Generate YouTube thumbnail URL
+        // Generate YouTube thumbnail URL with fallback
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
         
         // Clean up description

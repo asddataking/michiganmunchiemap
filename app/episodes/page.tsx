@@ -153,9 +153,26 @@ export default function EpisodesPage() {
                             alt={episode.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              // Fallback to placeholder if thumbnail fails to load
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              console.log('❌ Thumbnail failed to load:', episode.thumbnail);
+                              // Try fallback thumbnail sizes
+                              const videoId = episode.videoId;
+                              const fallbacks = [
+                                `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                                `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+                                `https://img.youtube.com/vi/${videoId}/default.jpg`
+                              ];
+                              
+                              let currentSrc = e.currentTarget.src;
+                              let fallbackIndex = fallbacks.findIndex(fb => currentSrc.includes(fb.split('/').pop()?.split('.')[0] || ''));
+                              
+                              if (fallbackIndex < fallbacks.length - 1) {
+                                e.currentTarget.src = fallbacks[fallbackIndex + 1];
+                                console.log('🔄 Trying fallback thumbnail:', fallbacks[fallbackIndex + 1]);
+                              } else {
+                                // All fallbacks failed, show placeholder
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }
                             }}
                           />
                         ) : null}

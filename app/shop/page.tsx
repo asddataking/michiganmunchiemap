@@ -151,7 +151,7 @@ export default function ShopPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {filteredProducts.map((product, index) => (
                   <motion.div
                     key={product.id}
@@ -160,7 +160,7 @@ export default function ShopPage() {
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                   >
                     <Card 
-                      className={`glass-panel transition-all duration-300 h-full ${
+                      className={`glass-panel transition-all duration-300 h-full flex flex-col ${
                         product.inStock 
                           ? 'hover:neon-glow cursor-pointer' 
                           : 'opacity-60 cursor-not-allowed'

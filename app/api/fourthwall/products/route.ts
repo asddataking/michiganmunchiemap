@@ -14,15 +14,14 @@ type Product = {
 
 // Public JSON feed product structure from Fourthwall
 type FourthwallFeedProduct = {
-  id: number;
+  id: string;
   title: string;
   handle: string;
   description?: string;
   body_html?: string;
   price: string;
-  featured_image?: string;
-  images?: string[];
-  product_type?: string;
+  image: string; // This is the main image field in the feed
+  url: string;
   available: boolean;
   created_at: string;
   updated_at: string;
@@ -67,13 +66,7 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
 
     const products: Product[] = data.products.map((product: FourthwallFeedProduct) => {
       // Handle image from public feed data
-      let imageUrl = null;
-      
-      if (product.featured_image) {
-        imageUrl = product.featured_image;
-      } else if (product.images && product.images.length > 0) {
-        imageUrl = product.images[0];
-      }
+      let imageUrl = product.image || null;
       
       // Clean up product name - decode HTML entities and strip tags
       let cleanName = product.title || 'Untitled Product';
@@ -118,7 +111,8 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
         handle: product.handle,
         imageUrl,
         price: product.price,
-        available: product.available
+        available: product.available,
+        rawImage: product.image
       });
       
       return {
