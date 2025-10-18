@@ -81,7 +81,7 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
         id: product.id?.toString() || product.handle,
         name: product.title || product.name || 'Untitled Product',
         description: product.description || product.body_html || '',
-        price: product.price || 0,
+        price: parseFloat(product.price) || 0,
         currency: 'USD',
         image: imageUrl,
         category: product.product_type || 'General',
