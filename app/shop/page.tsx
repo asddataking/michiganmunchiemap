@@ -41,6 +41,8 @@ export default function ShopPage() {
 
   useEffect(() => {
     loadProducts().then((result) => {
+      console.log('🛒 Shop page received products:', result);
+      console.log('🛒 First product image:', result[0]?.image);
       setProducts(result);
       setLoading(false);
     });
@@ -168,19 +170,20 @@ export default function ShopPage() {
                       onClick={() => handleProductClick(product)}
                     >
                       <div className="aspect-square relative overflow-hidden rounded-t-lg">
-                        {product.image && product.image !== '/api/placeholder/300/300' ? (
+                        {product.image && product.image.trim() !== '' ? (
                           <img 
                             src={product.image} 
                             alt={product.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
+                              console.log('❌ Product image failed to load:', product.image);
                               // Fallback to placeholder if image fails to load
                               e.currentTarget.style.display = 'none';
                               e.currentTarget.nextElementSibling?.classList.remove('hidden');
                             }}
                           />
                         ) : null}
-                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${product.image && product.image !== '/api/placeholder/300/300' ? 'hidden' : ''}`}>
+                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${product.image && product.image.trim() !== '' ? 'hidden' : ''}`}>
                           <ShoppingBag className="h-16 w-16 text-neon-orange" />
                         </div>
                         <div className="absolute inset-0 bg-black/20"></div>

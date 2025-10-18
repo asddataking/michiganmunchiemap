@@ -39,6 +39,8 @@ export default function EpisodesPage() {
 
   useEffect(() => {
     loadEpisodes().then((result) => {
+      console.log('📺 Episodes page received episodes:', result);
+      console.log('📺 First episode thumbnail:', result[0]?.thumbnail);
       setEpisodes(result);
       setLoading(false);
     });

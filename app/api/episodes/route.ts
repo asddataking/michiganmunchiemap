@@ -87,6 +87,7 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
     });
 
     console.log(`✅ Successfully parsed ${episodes.length} episodes from YouTube RSS`);
+    console.log('📺 Sample episode data:', JSON.stringify(episodes[0], null, 2));
     return episodes;
     
   } catch (error) {

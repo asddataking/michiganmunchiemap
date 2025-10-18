@@ -36,23 +36,48 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     console.log('🛒 Fetching products from Fourthwall public JSON feed');
     console.log('Shop URL:', shopUrl);
     console.log('Collection:', collectionSlug);
+    console.log('Environment FW_SHOP_URL:', process.env.FW_SHOP_URL);
+    console.log('Environment FW_COLLECTION_SLUG:', process.env.FW_COLLECTION_SLUG);
     
-    const feedUrl = `${shopUrl}/collections/${collectionSlug}.json`;
-    console.log('Feed URL:', feedUrl);
+    // Try multiple possible feed URLs
+    const possibleUrls = [
+      `${shopUrl}/collections/${collectionSlug}.json`,
+      `${shopUrl}/products.json`,
+      `${shopUrl}/collections/all.json`,
+      `${shopUrl}/collections.json`
+    ];
     
-    const response = await fetch(feedUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'DankNDevour-Storefront/1.0'
+    console.log('🔍 Trying possible feed URLs:', possibleUrls);
+    
+    let response;
+    let feedUrl;
+    
+    for (const url of possibleUrls) {
+      console.log(`🔄 Trying URL: ${url}`);
+      try {
+        response = await fetch(url, {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'DankNDevour-Storefront/1.0'
+          }
+        });
+        
+        console.log(`Response status for ${url}:`, response.status);
+        
+        if (response.ok) {
+          feedUrl = url;
+          console.log(`✅ Successfully connected to: ${url}`);
+          break;
+        } else {
+          console.log(`❌ Failed to fetch ${url}:`, response.status);
+        }
+      } catch (error) {
+        console.log(`❌ Error fetching ${url}:`, error);
       }
-    });
+    }
     
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('❌ Failed to fetch feed:', response.status, errorText);
-      throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
+    if (!response || !response.ok) {
+      throw new Error(`Failed to fetch products from any Fourthwall URL. Tried: ${possibleUrls.join(', ')}`);
     }
     
     const data = await response.json();
@@ -121,7 +146,7 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
         description: cleanDescription,
         price: parseFloat(product.price) || 0,
         currency: 'USD',
-        image: imageUrl || '/api/placeholder/300/300',
+        image: imageUrl || '',
         category: product.product_type || 'General',
         inStock: product.available !== false,
         checkoutUrl: checkoutUrl
@@ -129,6 +154,8 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     });
 
     console.log(`✅ Successfully fetched ${products.length} products from Fourthwall feed`);
+    console.log('📦 Product titles:', products.map(p => p.name));
+    console.log('📦 Sample product data:', JSON.stringify(products[0], null, 2));
     return products;
     
   } catch (error) {
