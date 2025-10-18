@@ -40,26 +40,31 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     console.log('🛒 Fetching products from Fourthwall Storefront API');
     console.log('Token exists:', !!storefrontToken);
     
-    // Try multiple possible Fourthwall API endpoints
-    const possibleEndpoints = [
-      'https://api.fourthwall.com/api/products',
-      'https://api.fourthwall.com/storefront/products', 
-      'https://api.fourthwall.com/v1/products',
-      'https://api.fourthwall.com/products'
-    ];
+                // Try multiple possible Fourthwall API endpoints based on their documentation
+                const possibleEndpoints = [
+                  'https://api.fourthwall.com/storefront/products',
+                  'https://api.fourthwall.com/api/storefront/products',
+                  'https://api.fourthwall.com/v1/storefront/products',
+                  'https://api.fourthwall.com/storefront/api/products',
+                  'https://api.fourthwall.com/api/products',
+                  'https://api.fourthwall.com/products'
+                ];
     
     let response;
     let lastError;
     
     for (const endpoint of possibleEndpoints) {
       try {
-        console.log(`🔄 Trying endpoint: ${endpoint}`);
-        response = await fetch(endpoint, {
-          headers: {
-            'Authorization': `Bearer ${storefrontToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
+                    console.log(`🔄 Trying endpoint: ${endpoint}`);
+                    console.log(`🔑 Using token: ${storefrontToken.substring(0, 10)}...`);
+                    response = await fetch(endpoint, {
+                      headers: {
+                        'Authorization': `Bearer ${storefrontToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'User-Agent': 'DankNDevour-Storefront/1.0'
+                      }
+                    });
         
         console.log(`Response status for ${endpoint}:`, response.status);
         
@@ -71,10 +76,15 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
           console.log(`❌ Failed ${endpoint}:`, response.status, errorText);
           lastError = new Error(`${endpoint}: ${response.status} ${response.statusText}`);
         }
-      } catch (error) {
-        console.log(`❌ Error with ${endpoint}:`, error);
-        lastError = error;
-      }
+              } catch (error) {
+                console.log(`❌ Error with ${endpoint}:`, error);
+                console.log(`❌ Error details:`, {
+                  message: error instanceof Error ? error.message : 'Unknown error',
+                  stack: error instanceof Error ? error.stack : undefined,
+                  name: error instanceof Error ? error.name : undefined
+                });
+                lastError = error;
+              }
     }
     
     if (!response || !response.ok) {
