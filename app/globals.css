@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 /* Prevent layout shifts and shaking */
 * {
   box-sizing: border-box;
@@ -13,6 +16,7 @@ html {
 
 body {
   overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 /* Prevent FOUC (Flash of Unstyled Content) */
@@ -27,7 +31,7 @@ body {
 
 /* Prevent layout shifts during loading */
 .loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #1A1A1A 25%, #2A2A2A 50%, #1A1A1A 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }
@@ -48,50 +52,83 @@ body {
   min-height: 400px;
 }
 
+/* DankNDevour Design System */
+.glass-panel {
+  @apply bg-dank-black-light/80 backdrop-blur-md border border-neon-orange/20;
+}
+
+.neon-glow {
+  @apply shadow-neon-orange;
+}
+
+.neon-glow-lg {
+  @apply shadow-neon-orange-lg;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+/* Subtle smoke texture overlay */
+.smoke-overlay {
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(255, 107, 53, 0.02) 0%, transparent 50%);
+}
+
+/* Cinematic lighting effect */
+.cinematic-lighting {
+  background: 
+    radial-gradient(ellipse at top, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+}
+
 @layer base {
   :root {
+    /* DankNDevour Dark Theme (Default) */
+    --background: 0 0% 4%; /* dank-black */
+    --foreground: 0 0% 98%;
+    --card: 0 0% 6%; /* dank-black-light */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 15 100% 60%; /* neon-orange */
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 16%; /* dank-black-lighter */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 15 100% 60%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 15 100% 60% / 0.2;
+    --input: 0 0% 16%;
+    --ring: 15 100% 60%;
+    --radius: 0.5rem;
+  }
+
+  .light {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 15 100% 60%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 15 100% 60%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 15 100% 60%;
   }
 }
 
