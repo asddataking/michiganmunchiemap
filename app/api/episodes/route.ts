@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Parser from 'rss-parser';
 
 type Episode = {
   id: string;
@@ -11,7 +12,7 @@ type Episode = {
   viewCount?: number;
 };
 
-// Mock YouTube RSS data - replace with actual RSS parsing
+// Mock episodes as fallback
 const mockEpisodes: Episode[] = [
   {
     id: "1",
@@ -42,36 +43,6 @@ const mockEpisodes: Episode[] = [
     videoId: "demo3",
     duration: "15:22",
     viewCount: 18930
-  },
-  {
-    id: "4",
-    title: "Grand Rapids Craft Beer Scene",
-    description: "Exploring Grand Rapids' world-renowned craft beer culture. We visit breweries, taprooms, and discover the stories behind Michigan's beer capital.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2024-01-01T00:00:00Z",
-    videoId: "demo4",
-    duration: "20:15",
-    viewCount: 12750
-  },
-  {
-    id: "5",
-    title: "Farm-to-Table Dining in Traverse City",
-    description: "Discovering Traverse City's farm-to-table restaurants and local food scene. We meet chefs who source ingredients from nearby farms.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2023-12-28T00:00:00Z",
-    videoId: "demo5",
-    duration: "16:30",
-    viewCount: 9850
-  },
-  {
-    id: "6",
-    title: "Michigan's Cannabis Dispensary Tour",
-    description: "A comprehensive tour of Michigan's top cannabis dispensaries. We explore different products, strains, and the evolving retail experience.",
-    thumbnail: "/api/placeholder/400/225",
-    publishedAt: "2023-12-25T00:00:00Z",
-    videoId: "demo6",
-    duration: "22:45",
-    viewCount: 31200
   }
 ];
 
@@ -84,13 +55,58 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       return mockEpisodes;
     }
 
-    // TODO: Implement actual RSS parsing
-    // For now, return mock data
-    console.log('YouTube RSS integration not yet implemented, using mock data');
-    return mockEpisodes;
+    console.log('Fetching YouTube RSS feed:', rssUrl);
+    
+    const parser = new Parser({
+      customFields: {
+        item: [
+          ['media:group', 'mediaGroup'],
+          ['yt:videoId', 'videoId'],
+          ['yt:channelId', 'channelId'],
+          ['media:thumbnail', 'thumbnail'],
+          ['media:description', 'description']
+        ]
+      }
+    });
+
+    const feed = await parser.parseURL(rssUrl);
+    
+    if (!feed.items || feed.items.length === 0) {
+      console.log('No items found in RSS feed, using mock data');
+      return mockEpisodes;
+    }
+
+    const episodes: Episode[] = feed.items.map((item, index) => {
+      // Extract video ID from the link
+      const videoId = item.link?.match(/watch\?v=([^&]+)/)?.[1] || 
+                     item.link?.match(/youtu\.be\/([^?]+)/)?.[1] || 
+                     `video-${index}`;
+      
+      // Extract thumbnail URL
+      const thumbnail = item['media:thumbnail']?.['$']?.url || 
+                       `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      
+      // Clean up description
+      const description = item.contentSnippet || item.content || item.description || '';
+      
+      return {
+        id: videoId,
+        title: item.title || `Episode ${index + 1}`,
+        description: description.substring(0, 200) + (description.length > 200 ? '...' : ''),
+        thumbnail,
+        publishedAt: item.pubDate || new Date().toISOString(),
+        videoId,
+        duration: undefined, // RSS doesn't include duration
+        viewCount: undefined // RSS doesn't include view count
+      };
+    });
+
+    console.log(`Successfully parsed ${episodes.length} episodes from YouTube RSS`);
+    return episodes;
     
   } catch (error) {
     console.error('Error fetching YouTube episodes:', error);
+    console.log('Falling back to mock data');
     return mockEpisodes;
   }
 }

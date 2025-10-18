@@ -12,7 +12,19 @@ type Product = {
   checkoutUrl: string;
 };
 
-// Mock Fourthwall products - replace with actual API integration
+type FourthwallProduct = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  images: Array<{ url: string }>;
+  category: string;
+  available: boolean;
+  checkoutUrl: string;
+};
+
+// Mock products as fallback
 const mockProducts: Product[] = [
   {
     id: "1",
@@ -91,26 +103,44 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
       return mockProducts;
     }
 
-    // TODO: Implement actual Fourthwall Storefront API integration
-    // const response = await fetch('https://api.fourthwall.com/storefront/products', {
-    //   headers: {
-    //     'Authorization': `Bearer ${storefrontToken}`,
-    //     'Content-Type': 'application/json'
-    //   }
-    // });
+    console.log('Fetching products from Fourthwall Storefront API');
     
-    // if (!response.ok) {
-    //   throw new Error(`Fourthwall API error: ${response.status}`);
-    // }
+    const response = await fetch('https://api.fourthwall.com/storefront/products', {
+      headers: {
+        'Authorization': `Bearer ${storefrontToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
     
-    // const data = await response.json();
-    // return data.products || [];
+    if (!response.ok) {
+      throw new Error(`Fourthwall API error: ${response.status} ${response.statusText}`);
+    }
     
-    console.log('Fourthwall API integration not yet implemented, using mock data');
-    return mockProducts;
+    const data = await response.json();
+    
+    if (!data.products || !Array.isArray(data.products)) {
+      console.log('No products found in Fourthwall response, using mock data');
+      return mockProducts;
+    }
+
+    const products: Product[] = data.products.map((product: FourthwallProduct) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description || '',
+      price: product.price,
+      currency: product.currency || 'USD',
+      image: product.images?.[0]?.url || '/api/placeholder/300/300',
+      category: product.category || 'General',
+      inStock: product.available,
+      checkoutUrl: product.checkoutUrl
+    }));
+
+    console.log(`Successfully fetched ${products.length} products from Fourthwall`);
+    return products;
     
   } catch (error) {
     console.error('Error fetching Fourthwall products:', error);
+    console.log('Falling back to mock data');
     return mockProducts;
   }
 }
