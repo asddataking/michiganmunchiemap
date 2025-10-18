@@ -12,19 +12,20 @@ type Product = {
   checkoutUrl: string;
 };
 
-type FourthwallProduct = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
-  thumbnailImage?: string;
-  images?: Array<{ url: string }>;
-  category?: string;
-  available?: boolean;
-  inStock?: boolean;
-  checkoutUrl?: string;
-  url?: string;
+// Public JSON feed product structure from Fourthwall
+type FourthwallFeedProduct = {
+  id: number;
+  title: string;
+  handle: string;
+  description?: string;
+  body_html?: string;
+  price: string;
+  featured_image?: string;
+  images?: string[];
+  product_type?: string;
+  available: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 async function fetchFourthwallProducts(): Promise<Product[]> {
@@ -64,9 +65,9 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
       throw new Error('No products found in feed response');
     }
 
-    const products: Product[] = data.products.map((product: any) => {
-      // Handle image from feed data
-      let imageUrl = '/api/placeholder/300/300';
+    const products: Product[] = data.products.map((product: FourthwallFeedProduct) => {
+      // Handle image from public feed data
+      let imageUrl = null;
       
       if (product.featured_image) {
         imageUrl = product.featured_image;
@@ -74,16 +75,59 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
         imageUrl = product.images[0];
       }
       
+      // Clean up product name - decode HTML entities and strip tags
+      let cleanName = product.title || 'Untitled Product';
+      if (typeof cleanName === 'string') {
+        // Decode HTML entities
+        cleanName = cleanName
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ');
+        
+        // Strip HTML tags
+        cleanName = cleanName.replace(/<[^>]*>/g, '');
+      }
+      
+      // Clean up description
+      let cleanDescription = product.description || product.body_html || '';
+      if (typeof cleanDescription === 'string') {
+        // Decode HTML entities
+        cleanDescription = cleanDescription
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ');
+        
+        // Strip HTML tags
+        cleanDescription = cleanDescription.replace(/<[^>]*>/g, '');
+        
+        // Limit length
+        cleanDescription = cleanDescription.substring(0, 200) + (cleanDescription.length > 200 ? '...' : '');
+      }
+      
       // Generate checkout URL
       const checkoutUrl = `${shopUrl}/products/${product.handle}`;
       
+      console.log(`📦 Product: ${cleanName}`, {
+        id: product.id,
+        handle: product.handle,
+        imageUrl,
+        price: product.price,
+        available: product.available
+      });
+      
       return {
         id: product.id?.toString() || product.handle,
-        name: product.title || product.name || 'Untitled Product',
-        description: product.description || product.body_html || '',
+        name: cleanName,
+        description: cleanDescription,
         price: parseFloat(product.price) || 0,
         currency: 'USD',
-        image: imageUrl,
+        image: imageUrl || '/api/placeholder/300/300',
         category: product.product_type || 'General',
         inStock: product.available !== false,
         checkoutUrl: checkoutUrl

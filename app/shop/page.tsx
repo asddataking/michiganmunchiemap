@@ -168,7 +168,19 @@ export default function ShopPage() {
                       onClick={() => handleProductClick(product)}
                     >
                       <div className="aspect-square relative overflow-hidden rounded-t-lg">
-                        <div className="absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center">
+                        {product.image && product.image !== '/api/placeholder/300/300' ? (
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to placeholder if image fails to load
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${product.image && product.image !== '/api/placeholder/300/300' ? 'hidden' : ''}`}>
                           <ShoppingBag className="h-16 w-16 text-neon-orange" />
                         </div>
                         <div className="absolute inset-0 bg-black/20"></div>

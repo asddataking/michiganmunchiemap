@@ -43,18 +43,28 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
     }
 
     const episodes: Episode[] = feed.items.map((item, index) => {
-      // Extract video ID from the link
-      const videoId = item.link?.match(/watch\?v=([^&]+)/)?.[1] || 
-                     item.link?.match(/youtu\.be\/([^?]+)/)?.[1] || 
-                     `video-${index}`;
+      // Extract video ID from the link with better debugging
+      let videoId = item.link?.match(/watch\?v=([^&]+)/)?.[1] || 
+                   item.link?.match(/youtu\.be\/([^?]+)/)?.[1];
       
-      // Generate proper YouTube thumbnail URL
-      const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      console.log(`📺 Processing item ${index}:`, {
+        title: item.title,
+        link: item.link,
+        extractedVideoId: videoId
+      });
       
-      // Clean up description
+      if (!videoId) {
+        console.log(`⚠️ Could not extract video ID from: ${item.link}`);
+        videoId = `video-${index}`;
+      }
+      
+        // Generate YouTube thumbnail URL
+        const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        
+        // Clean up description
       const description = item.contentSnippet || item.content || item.description || '';
       
-      return {
+      const episode = {
         id: videoId,
         title: item.title || `Episode ${index + 1}`,
         description: description.substring(0, 200) + (description.length > 200 ? '...' : ''),
@@ -64,6 +74,14 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
         duration: undefined, // RSS doesn't include duration
         viewCount: undefined // RSS doesn't include view count
       };
+      
+      console.log(`✅ Created episode:`, {
+        id: episode.id,
+        title: episode.title,
+        thumbnail: episode.thumbnail
+      });
+      
+      return episode;
     });
 
     console.log(`✅ Successfully parsed ${episodes.length} episodes from YouTube RSS`);

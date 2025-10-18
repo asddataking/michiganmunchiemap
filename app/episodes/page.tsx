@@ -59,6 +59,10 @@ export default function EpisodesPage() {
     return `${count} views`;
   };
 
+  const handleEpisodeClick = (episode: Episode) => {
+    window.open(`https://youtube.com/watch?v=${episode.videoId}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -138,15 +142,38 @@ export default function EpisodesPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                   >
-                    <Card className="glass-panel hover:neon-glow transition-all duration-300 group cursor-pointer h-full">
+                    <Card 
+                      className="glass-panel hover:neon-glow transition-all duration-300 group cursor-pointer h-full"
+                      onClick={() => handleEpisodeClick(episode)}
+                    >
                       <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                        <div className="absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center">
+                        {episode.thumbnail ? (
+                          <img 
+                            src={episode.thumbnail} 
+                            alt={episode.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to placeholder if thumbnail fails to load
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${episode.thumbnail ? 'hidden' : ''}`}>
                           <div className="relative">
                             <Play className="h-16 w-16 text-neon-orange group-hover:scale-110 transition-transform" />
                             <div className="absolute inset-0 bg-neon-orange/20 rounded-full blur-lg group-hover:bg-neon-orange/30 transition-colors"></div>
                           </div>
                         </div>
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                        
+                        {/* Play Button Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="relative">
+                            <Play className="h-16 w-16 text-white drop-shadow-lg" />
+                            <div className="absolute inset-0 bg-neon-orange/20 rounded-full blur-lg"></div>
+                          </div>
+                        </div>
                         
                         {/* Duration Badge */}
                         {episode.duration && (
