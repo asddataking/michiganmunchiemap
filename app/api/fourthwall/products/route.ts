@@ -40,21 +40,45 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     console.log('🛒 Fetching products from Fourthwall Storefront API');
     console.log('Token exists:', !!storefrontToken);
     
-    const response = await fetch('https://api.fourthwall.com/api/products', {
-      headers: {
-        'Authorization': `Bearer ${storefrontToken}`,
-        'Content-Type': 'application/json'
+    // Try multiple possible Fourthwall API endpoints
+    const possibleEndpoints = [
+      'https://api.fourthwall.com/api/products',
+      'https://api.fourthwall.com/storefront/products', 
+      'https://api.fourthwall.com/v1/products',
+      'https://api.fourthwall.com/products'
+    ];
+    
+    let response;
+    let lastError;
+    
+    for (const endpoint of possibleEndpoints) {
+      try {
+        console.log(`🔄 Trying endpoint: ${endpoint}`);
+        response = await fetch(endpoint, {
+          headers: {
+            'Authorization': `Bearer ${storefrontToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log(`Response status for ${endpoint}:`, response.status);
+        
+        if (response.ok) {
+          console.log(`✅ Success with endpoint: ${endpoint}`);
+          break;
+        } else {
+          const errorText = await response.text();
+          console.log(`❌ Failed ${endpoint}:`, response.status, errorText);
+          lastError = new Error(`${endpoint}: ${response.status} ${response.statusText}`);
+        }
+      } catch (error) {
+        console.log(`❌ Error with ${endpoint}:`, error);
+        lastError = error;
       }
-    });
+    }
     
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Fourthwall API error:', response.status, response.statusText);
-      console.error('Error response:', errorText);
-      throw new Error(`Fourthwall API error: ${response.status} ${response.statusText}`);
+    if (!response || !response.ok) {
+      throw lastError || new Error('All Fourthwall API endpoints failed');
     }
     
     const data = await response.json();
