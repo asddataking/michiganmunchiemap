@@ -29,109 +29,73 @@ type FourthwallProduct = {
 
 async function fetchFourthwallProducts(): Promise<Product[]> {
   try {
-    const storefrontToken = process.env.FW_STOREFRONT_TOKEN;
+    // Use the public JSON feed instead of API endpoints
+    const shopUrl = process.env.FW_SHOP_URL || 'https://shop.fourthwall.com';
+    const collectionSlug = process.env.FW_COLLECTION_SLUG || 'all';
     
-    if (!storefrontToken) {
-      console.log('❌ No Fourthwall storefront token configured');
-      console.log('Please set FW_STOREFRONT_TOKEN in your environment variables');
-      throw new Error('FW_STOREFRONT_TOKEN environment variable not set');
-    }
-
-    console.log('🛒 Fetching products from Fourthwall Storefront API');
-    console.log('Token exists:', !!storefrontToken);
+    console.log('🛒 Fetching products from Fourthwall public JSON feed');
+    console.log('Shop URL:', shopUrl);
+    console.log('Collection:', collectionSlug);
     
-                // Try multiple possible Fourthwall API endpoints based on their documentation
-                const possibleEndpoints = [
-                  'https://api.fourthwall.com/storefront/products',
-                  'https://api.fourthwall.com/api/storefront/products',
-                  'https://api.fourthwall.com/v1/storefront/products',
-                  'https://api.fourthwall.com/storefront/api/products',
-                  'https://api.fourthwall.com/api/products',
-                  'https://api.fourthwall.com/products'
-                ];
+    const feedUrl = `${shopUrl}/collections/${collectionSlug}.json`;
+    console.log('Feed URL:', feedUrl);
     
-    let response;
-    let lastError;
+    const response = await fetch(feedUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'DankNDevour-Storefront/1.0'
+      }
+    });
     
-    for (const endpoint of possibleEndpoints) {
-      try {
-                    console.log(`🔄 Trying endpoint: ${endpoint}`);
-                    console.log(`🔑 Using token: ${storefrontToken.substring(0, 10)}...`);
-                    response = await fetch(endpoint, {
-                      headers: {
-                        'Authorization': `Bearer ${storefrontToken}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'User-Agent': 'DankNDevour-Storefront/1.0'
-                      }
-                    });
-        
-        console.log(`Response status for ${endpoint}:`, response.status);
-        
-        if (response.ok) {
-          console.log(`✅ Success with endpoint: ${endpoint}`);
-          break;
-        } else {
-          const errorText = await response.text();
-          console.log(`❌ Failed ${endpoint}:`, response.status, errorText);
-          lastError = new Error(`${endpoint}: ${response.status} ${response.statusText}`);
-        }
-              } catch (error) {
-                console.log(`❌ Error with ${endpoint}:`, error);
-                console.log(`❌ Error details:`, {
-                  message: error instanceof Error ? error.message : 'Unknown error',
-                  stack: error instanceof Error ? error.stack : undefined,
-                  name: error instanceof Error ? error.name : undefined
-                });
-                lastError = error;
-              }
-    }
+    console.log('Response status:', response.status);
     
-    if (!response || !response.ok) {
-      throw lastError || new Error('All Fourthwall API endpoints failed');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log('❌ Failed to fetch feed:', response.status, errorText);
+      throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
-    console.log('Raw Fourthwall response:', JSON.stringify(data, null, 2));
+    console.log('Raw feed response:', JSON.stringify(data, null, 2));
     
     if (!data.products || !Array.isArray(data.products)) {
-      console.log('❌ No products found in Fourthwall response');
+      console.log('❌ No products found in feed response');
       console.log('Response structure:', Object.keys(data));
-      throw new Error('No products found in Fourthwall response');
+      throw new Error('No products found in feed response');
     }
 
-    const products: Product[] = data.products.map((product: FourthwallProduct) => {
-      // Handle different possible image fields from Fourthwall
+    const products: Product[] = data.products.map((product: any) => {
+      // Handle image from feed data
       let imageUrl = '/api/placeholder/300/300';
       
-      if (product.thumbnailImage) {
-        imageUrl = product.thumbnailImage;
+      if (product.featured_image) {
+        imageUrl = product.featured_image;
       } else if (product.images && product.images.length > 0) {
-        imageUrl = product.images[0].url;
+        imageUrl = product.images[0];
       }
       
-      // Handle different possible checkout URL fields
-      let checkoutUrl = product.checkoutUrl || product.url || `https://fourthwall.com/products/${product.id}`;
+      // Generate checkout URL
+      const checkoutUrl = `${shopUrl}/products/${product.handle}`;
       
       return {
-        id: product.id,
-        name: product.name,
-        description: product.description || '',
-        price: product.price,
-        currency: product.currency || 'USD',
+        id: product.id?.toString() || product.handle,
+        name: product.title || product.name || 'Untitled Product',
+        description: product.description || product.body_html || '',
+        price: product.price || 0,
+        currency: 'USD',
         image: imageUrl,
-        category: product.category || 'General',
-        inStock: product.available ?? product.inStock ?? true,
+        category: product.product_type || 'General',
+        inStock: product.available !== false,
         checkoutUrl: checkoutUrl
       };
     });
 
-    console.log(`✅ Successfully fetched ${products.length} products from Fourthwall`);
+    console.log(`✅ Successfully fetched ${products.length} products from Fourthwall feed`);
     return products;
     
   } catch (error) {
     console.error('❌ Error fetching Fourthwall products:', error);
-    throw error; // Re-throw instead of returning mock data
+    throw error;
   }
 }
 
