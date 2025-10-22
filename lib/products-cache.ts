@@ -92,14 +92,14 @@ export class ProductsCacheService {
 
       // Upsert products (update if exists, insert if not)
       console.log('💾 Attempting to upsert cache data...');
-      const { data: upsertData, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('products_cache')
         .upsert(cacheData, { 
           onConflict: 'product_id',
           ignoreDuplicates: false 
         });
 
-      console.log('💾 Upsert result:', { data: upsertData?.length || 0, error });
+      console.log('💾 Upsert result:', { error });
 
       if (error) {
         console.error('❌ Error caching products:', error);

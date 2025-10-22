@@ -86,7 +86,7 @@ export default function MapPage() {
     if (!placesCacheRef.current) return false;
     const now = Date.now();
     return (now - placesCacheRef.current.timestamp) < CACHE_DURATION;
-  }, []);
+  }, [CACHE_DURATION]);
 
   // Load all places once and cache them
   const loadAllPlaces = useCallback(async () => {
