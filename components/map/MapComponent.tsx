@@ -215,6 +215,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       padding: 12px;
       max-width: 200px;
       font-family: system-ui, -apple-system, sans-serif;
+      cursor: pointer;
     `;
     
     const rating = place.rating ? place.rating.toFixed(1) : 'N/A';
@@ -245,6 +246,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
       closeOnClick: false,
     }).setDOMContent(popupContent);
 
+    // Add click handler to popup content
+    popupContent.addEventListener('click', (e) => {
+      e.stopPropagation();
+      router.push(`/place/${place.slug}`);
+    });
+
     el.addEventListener('mouseenter', () => {
       el.style.transform = 'scale(1.1)';
       popup.addTo(map.current!);
@@ -255,7 +262,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
       popup.remove();
     });
 
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
       // Navigate to restaurant detail page
       router.push(`/place/${place.slug}`);
     });
