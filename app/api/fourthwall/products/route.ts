@@ -81,6 +81,13 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     }
 
     const products: Product[] = data.products.map((product: FourthwallProduct) => {
+      // Debug: Log raw product data
+      console.log('🔍 Raw product data:', {
+        id: product.id,
+        title: product.title,
+        description: product.description?.substring(0, 100) + '...'
+      });
+      
       // Get the first image from the images array
       const imageUrl = product.images && product.images.length > 0 ? product.images[0].url : null;
       
@@ -94,7 +101,15 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
           .replace(/&quot;/g, '"')
           .replace(/&#39;/g, "'")
           .replace(/&nbsp;/g, ' ')
-          .replace(/<[^>]*>/g, '');
+          .replace(/&hellip;/g, '...')
+          .replace(/&mdash;/g, '—')
+          .replace(/&ndash;/g, '–')
+          .replace(/&copy;/g, '©')
+          .replace(/&reg;/g, '®')
+          .replace(/&trade;/g, '™')
+          .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
       }
       
       // Clean up description
@@ -107,7 +122,14 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
           .replace(/&quot;/g, '"')
           .replace(/&#39;/g, "'")
           .replace(/&nbsp;/g, ' ')
+          .replace(/&hellip;/g, '...')
+          .replace(/&mdash;/g, '—')
+          .replace(/&ndash;/g, '–')
+          .replace(/&copy;/g, '©')
+          .replace(/&reg;/g, '®')
+          .replace(/&trade;/g, '™')
           .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
           .trim();
       }
       
@@ -200,9 +222,68 @@ async function fetchFromPublicFeed(shopUrl: string): Promise<Product[]> {
     }
 
     const products: Product[] = data.products.map((product: any) => {
+      // Debug: Log raw product data from fallback
+      console.log('🔍 Raw fallback product data:', {
+        id: product.id,
+        title: product.title,
+        description: product.description?.substring(0, 100) + '...'
+      });
+      
       const imageUrl = product.image || null;
-      const cleanName = product.title || 'Untitled Product';
-      const cleanDescription = product.description || '';
+      
+      // Clean up product name (same logic as Storefront API)
+      let cleanName = product.title || 'Untitled Product';
+      if (typeof cleanName === 'string') {
+        cleanName = cleanName
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&hellip;/g, '...')
+          .replace(/&mdash;/g, '—')
+          .replace(/&ndash;/g, '–')
+          .replace(/&copy;/g, '©')
+          .replace(/&reg;/g, '®')
+          .replace(/&trade;/g, '™')
+          .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+      
+      // Clean up description (same logic as Storefront API)
+      let cleanDescription = product.description || '';
+      if (typeof cleanDescription === 'string') {
+        cleanDescription = cleanDescription
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&hellip;/g, '...')
+          .replace(/&mdash;/g, '—')
+          .replace(/&ndash;/g, '–')
+          .replace(/&copy;/g, '©')
+          .replace(/&reg;/g, '®')
+          .replace(/&trade;/g, '™')
+          .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+      
+      // If no description, create one based on the product name
+      if (!cleanDescription) {
+        const productType = product.product_type?.toLowerCase() || 'item';
+        cleanDescription = `Premium ${productType} featuring the Dank'N'Devour brand. High-quality materials and comfortable fit. Perfect for showing your love for Michigan's food and cannabis culture.`;
+      }
+      
+      // Truncate description if too long
+      if (cleanDescription.length > 200) {
+        cleanDescription = cleanDescription.substring(0, 200) + '...';
+      }
+      
       const checkoutUrl = `${shopUrl}/products/${product.handle}`;
       
       return {
