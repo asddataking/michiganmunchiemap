@@ -337,10 +337,13 @@ export default function MapPage() {
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 flex min-h-0">
-            {/* Map */}
-            <div className={`${viewMode === 'map' ? 'w-full' : viewMode === 'split' ? 'w-1/2' : 'hidden'} ${viewMode === 'split' ? 'border-r' : ''}`}>
+          {/* Content Area - Vertical stack on mobile, horizontal split on desktop */}
+          <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+            {/* Map - Full width on mobile at top, half width on desktop split */}
+            <div className={`
+              ${viewMode === 'map' ? 'w-full' : viewMode === 'split' ? 'w-full lg:w-1/2 h-[40vh] lg:h-full' : 'hidden'} 
+              ${viewMode === 'split' ? 'lg:border-r' : ''}
+            `}>
               <div className="h-full w-full">
                 <MapComponent
                   places={filteredPlaces}
@@ -352,14 +355,17 @@ export default function MapPage() {
               </div>
             </div>
 
-            {/* Places List */}
-            <div className={`${viewMode === 'list' ? 'w-full' : viewMode === 'split' ? 'w-1/2' : 'hidden'} flex flex-col min-h-0`}>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Places List - Full width on mobile below map, half width on desktop split */}
+            <div className={`
+              ${viewMode === 'list' ? 'w-full' : viewMode === 'split' ? 'w-full lg:w-1/2' : 'hidden'} 
+              flex flex-col min-h-0
+            `}>
+                <div className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-2 lg:space-y-4">
                   {loading ? (
-                    <div className="space-y-4">
+                    <div className="space-y-2 lg:space-y-4">
                       {[...Array(5)].map((_, i) => (
                         <Card key={i} className="animate-pulse">
-                          <CardContent className="p-4">
+                          <CardContent className="p-3 lg:p-4">
                             <div className="h-4 bg-muted rounded mb-2"></div>
                             <div className="h-3 bg-muted rounded w-2/3 mb-2"></div>
                             <div className="h-3 bg-muted rounded w-1/2"></div>
@@ -369,7 +375,7 @@ export default function MapPage() {
                     </div>
                   ) : error ? (
                     <Card>
-                      <CardContent className="p-8 text-center">
+                      <CardContent className="p-6 lg:p-8 text-center">
                         <div className="text-destructive mb-2">Error loading places</div>
                         <Button onClick={() => loadPlacesInBounds(-90.418, 41.696, -82.123, 48.238)}>
                           Try Again
@@ -378,10 +384,10 @@ export default function MapPage() {
                     </Card>
                   ) : filteredPlaces.length === 0 ? (
                     <Card>
-                      <CardContent className="p-8 text-center">
-                        <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <div className="text-lg font-medium mb-2">No places found</div>
-                        <div className="text-muted-foreground">
+                      <CardContent className="p-6 lg:p-8 text-center">
+                        <Search className="h-8 lg:h-12 w-8 lg:w-12 text-muted-foreground mx-auto mb-4" />
+                        <div className="text-base lg:text-lg font-medium mb-2">No places found</div>
+                        <div className="text-sm lg:text-base text-muted-foreground">
                           Try adjusting your search or filters
                         </div>
                       </CardContent>
@@ -393,6 +399,7 @@ export default function MapPage() {
                         place={place}
                         userLocation={userLocation}
                         onClick={() => router.push(`/place/${place.slug}`)}
+                        compact={true}
                       />
                     ))
                   )}

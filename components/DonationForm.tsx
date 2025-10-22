@@ -10,15 +10,24 @@ export default function DonationForm() {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   
-  const supportUrl = process.env.NEXT_PUBLIC_FOURTHWALL_DONATION_URL || "#";
+  const supportUrl = process.env.NEXT_PUBLIC_FOURTHWALL_DONATION_URL || "https://dankndevour-shop.fourthwall.com/donation/";
   
   const presetAmounts = [1, 5, 20];
   
   const handleDonate = () => {
     const params = new URLSearchParams();
-    if (name) params.append('name', name);
+    if (name) params.append('donor', name);
     if (message) params.append('message', message);
-    params.append('amount', customAmount || selectedAmount.toString());
+    
+    const amount = customAmount || selectedAmount.toString();
+    params.append('amount-radio', amount + '.00');
+    params.append('amount', amount);
+    params.append('currency', 'USD');
+    
+    // Add preset amounts for the form
+    presetAmounts.forEach(amt => {
+      params.append('donationOpts[]', amt + '.00');
+    });
     
     window.open(`${supportUrl}?${params.toString()}`, '_blank');
   };
