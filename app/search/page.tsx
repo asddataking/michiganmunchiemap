@@ -10,6 +10,7 @@ import { PlacesService } from '@/lib/supabase';
 import { Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAnalytics } from '@/lib/useAnalytics';
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ function SearchContent() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { trackSearch, trackPlaceClick } = useAnalytics();
 
   useEffect(() => {
     const searchPlaces = async () => {
@@ -32,6 +34,8 @@ function SearchContent() {
       try {
         const results = await PlacesService.searchPlaces(query, {}, 50);
         setPlaces(results);
+        // Track the search event with results count
+        trackSearch(query, results.length);
       } catch (err) {
         setError('Failed to search places');
         console.error('Search error:', err);
@@ -41,7 +45,7 @@ function SearchContent() {
     };
 
     searchPlaces();
-  }, [query]);
+  }, [query, trackSearch]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -108,7 +112,10 @@ function SearchContent() {
                 <PlaceCard
                   key={place.id}
                   place={place}
-                  onClick={() => window.location.href = `/place/${place.slug}`}
+                  onClick={() => {
+                    trackPlaceClick(place.name, 'search-results');
+                    window.location.href = `/place/${place.slug}`;
+                  }}
                 />
               ))}
             </div>

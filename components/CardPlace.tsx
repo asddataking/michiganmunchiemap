@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star, ArrowRight } from "lucide-react";
+import { useAnalytics } from "@/lib/useAnalytics";
 
 interface Place {
   id: string;
@@ -20,10 +21,15 @@ interface CardPlaceProps {
 }
 
 export default function CardPlace({ place }: CardPlaceProps) {
+  const { trackPlaceClick } = useAnalytics();
   const cuisine = place.cuisines?.[0] || "Restaurant";
   const city = place.city || "Michigan";
   const rating = place.rating || 4.8;
   const imageUrl = place.image || "/placeholder-place.jpg";
+
+  const handleClick = () => {
+    trackPlaceClick(place.name, place.is_featured ? 'featured-card' : 'place-card');
+  };
 
   return (
     <div className="group">
@@ -74,7 +80,7 @@ export default function CardPlace({ place }: CardPlaceProps) {
           </div>
 
           {/* CTA Button */}
-          <Link href={`/place/${place.slug}`}>
+          <Link href={`/place/${place.slug}`} onClick={handleClick}>
             <button className="w-full bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white font-medium px-4 py-3 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-[#FF6A00]/25 flex items-center justify-center group">
               View Details
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
