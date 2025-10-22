@@ -21,6 +21,7 @@ type Place = {
   cuisines?: string[];
   image?: string;
   rating?: number;
+  is_featured?: boolean;
 };
 
 type Episode = {
@@ -76,7 +77,7 @@ export default function HomePage() {
     const loadData = async () => {
       try {
         const [placesData, episodesData, productsData] = await Promise.all([
-          loadLatest(6),
+          loadLatest(3),
           loadEpisodes(3),
           getProducts()
         ]);
@@ -102,30 +103,121 @@ export default function HomePage() {
         <Hero />
         <ValueBand />
 
-        {/* EXISTING MAP JSX — DO NOT TOUCH ANYTHING INSIDE OR AROUND THIS BLOCK */}
-        {/* Note: The current homepage doesn't have the actual map embedded, just a preview */}
-        {/* If you want to add the actual map here, it would go in this section */}
-        <section className="py-16 px-4 bg-white/5 backdrop-blur-sm">
-          <div className="container mx-auto max-w-6xl text-center">
-            <h2 className="text-3xl font-black text-[#F3F3F3] mb-8">
-              Interactive Munchie Map
-            </h2>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-12">
-              <div className="w-32 h-32 mx-auto mb-6 border-2 border-[#FF6A00]/50 rounded-lg bg-[#0B0B0B] flex items-center justify-center">
-                <span className="text-6xl">🗺️</span>
-              </div>
-              <h3 className="text-xl font-bold text-[#F3F3F3] mb-4">
-                Discover Michigan's Best Spots
-              </h3>
-              <p className="text-[#F3F3F3]/70 mb-6">
-                Explore our interactive map to find verified restaurants, dispensaries, and hidden gems across Michigan.
+        {/* Interactive Munchie Map Preview */}
+        <section className="py-20 px-4 bg-gradient-to-br from-[#0B0B0B] via-[#1a1a1a] to-[#0B0B0B] relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-10 left-10 w-32 h-32 border border-[#FF6A00]/30 rounded-full animate-pulse"></div>
+            <div className="absolute top-32 right-20 w-24 h-24 border border-[#FF6A00]/20 rounded-full animate-pulse delay-1000"></div>
+            <div className="absolute bottom-20 left-1/4 w-40 h-40 border border-[#FF6A00]/25 rounded-full animate-pulse delay-2000"></div>
+            <div className="absolute bottom-32 right-1/3 w-28 h-28 border border-[#FF6A00]/20 rounded-full animate-pulse delay-500"></div>
+          </div>
+          
+          <div className="container mx-auto max-w-7xl relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black text-[#F3F3F3] mb-6">
+                Interactive <span className="text-[#FF6A00]">Munchie Map</span>
+              </h2>
+              <p className="text-xl text-[#F3F3F3]/70 max-w-3xl mx-auto">
+                Discover Michigan's most authentic food experiences, verified dispensaries, and hidden gems all in one interactive map
               </p>
-              <a
-                href="/munchie-map"
-                className="bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-[#FF6A00]/25 inline-block"
-              >
-                Explore Map
-              </a>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Side - Features */}
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                      <span className="text-white font-bold text-lg">📍</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-[#F3F3F3] mb-2">Verified Spots</h3>
+                    <p className="text-[#F3F3F3]/70 text-sm">Every location is personally verified by our team</p>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                      <span className="text-white font-bold text-lg">⭐</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-[#F3F3F3] mb-2">Real Reviews</h3>
+                    <p className="text-[#F3F3F3]/70 text-sm">Authentic ratings from our community</p>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                      <span className="text-white font-bold text-lg">🚗</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-[#F3F3F3] mb-2">Easy Navigation</h3>
+                    <p className="text-[#F3F3F3]/70 text-sm">One-click directions to any location</p>
+                  </div>
+                  
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                      <span className="text-white font-bold text-lg">🔥</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-[#F3F3F3] mb-2">Hidden Gems</h3>
+                    <p className="text-[#F3F3F3]/70 text-sm">Discover spots you won't find anywhere else</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Interactive Preview */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-[#FF6A00]/10 to-orange-600/10 backdrop-blur-sm border border-[#FF6A00]/20 rounded-3xl p-8 relative overflow-hidden">
+                  {/* Animated Map Preview */}
+                  <div className="relative bg-[#0B0B0B] rounded-2xl p-6 mb-6">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      {/* Animated Map Pins */}
+                      <div className="flex justify-center">
+                        <div className="w-4 h-4 bg-[#FF6A00] rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-pulse delay-500"></div>
+                      </div>
+                      <div className="flex justify-center">
+                        <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse delay-1000"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Map Grid Lines */}
+                    <div className="space-y-2">
+                      <div className="h-1 bg-white/10 rounded animate-pulse"></div>
+                      <div className="h-1 bg-white/10 rounded animate-pulse delay-200"></div>
+                      <div className="h-1 bg-white/10 rounded animate-pulse delay-400"></div>
+                      <div className="h-1 bg-white/10 rounded animate-pulse delay-600"></div>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-[#FF6A00]">500+</div>
+                      <div className="text-xs text-[#F3F3F3]/70">Verified Spots</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-[#FF6A00]">83</div>
+                      <div className="text-xs text-[#F3F3F3]/70">Counties</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-[#FF6A00]">24/7</div>
+                      <div className="text-xs text-[#F3F3F3]/70">Updated</div>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <a
+                    href="/munchie-map"
+                    className="w-full bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white font-semibold px-8 py-4 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-[#FF6A00]/25 flex items-center justify-center group"
+                  >
+                    <span className="mr-2">Explore Interactive Map</span>
+                    <span className="transform group-hover:translate-x-1 transition-transform duration-200">→</span>
+                  </a>
+                </div>
+
+                {/* Floating Elements */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-[#FF6A00]/20 rounded-full animate-bounce"></div>
+                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-orange-500/20 rounded-full animate-bounce delay-1000"></div>
+              </div>
             </div>
           </div>
         </section>

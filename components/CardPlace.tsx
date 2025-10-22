@@ -12,6 +12,7 @@ interface Place {
   cuisines?: string[];
   image?: string;
   rating?: number;
+  is_featured?: boolean;
 }
 
 interface CardPlaceProps {
@@ -26,7 +27,19 @@ export default function CardPlace({ place }: CardPlaceProps) {
 
   return (
     <div className="group">
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
+      <div className={`bg-white/5 backdrop-blur-sm border rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/20 ${
+        place.is_featured 
+          ? 'border-[#FF6A00]/50 bg-gradient-to-br from-[#FF6A00]/10 to-orange-600/10' 
+          : 'border-white/10'
+      }`}>
+        {/* Featured Badge */}
+        {place.is_featured && (
+          <div className="absolute top-4 left-4 z-10 bg-[#FF6A00] text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <Star className="w-3 h-3 fill-current" />
+            FEATURED
+          </div>
+        )}
+        
         {/* Image */}
         <div className="aspect-video relative overflow-hidden">
           <Image
