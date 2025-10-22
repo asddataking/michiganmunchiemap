@@ -107,7 +107,7 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       // Format view count
       const viewCount = parseInt(video.statistics.viewCount);
       
-      return {
+      const episode = {
         id: video.id,
         title: video.snippet.title,
         description: video.snippet.description.substring(0, 200) + (video.snippet.description.length > 200 ? '...' : ''),
@@ -117,6 +117,15 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
         duration,
         viewCount
       };
+      
+      console.log(`📺 Created episode:`, {
+        id: episode.id,
+        title: episode.title,
+        thumbnail: episode.thumbnail,
+        videoId: episode.videoId
+      });
+      
+      return episode;
     });
 
     console.log(`✅ Successfully fetched ${episodes.length} episodes from YouTube Data API`);

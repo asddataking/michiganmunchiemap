@@ -235,13 +235,56 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
+                  onClick={() => window.open(`https://youtube.com/watch?v=${episode.videoId}`, '_blank')}
+                  className="cursor-pointer"
                 >
                   <Card className="glass-panel hover:neon-glow transition-all duration-300 group cursor-pointer">
                     <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                      <div className="absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center">
-                        <Play className="h-16 w-16 text-neon-orange group-hover:scale-110 transition-transform" />
+                      {episode.thumbnail && episode.videoId && !episode.videoId.startsWith('video-') ? (
+                        <Image 
+                          src={episode.thumbnail} 
+                          alt={episode.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          onError={(e) => {
+                            console.log('❌ Homepage thumbnail failed to load:', episode.thumbnail);
+                            // Try fallback thumbnail sizes
+                            const videoId = episode.videoId;
+                            const fallbacks = [
+                              `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                              `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                              `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+                              `https://img.youtube.com/vi/${videoId}/default.jpg`
+                            ];
+                            
+                            let currentSrc = e.currentTarget.src;
+                            let fallbackIndex = fallbacks.findIndex(fb => currentSrc.includes(fb.split('/').pop()?.split('.')[0] || ''));
+                            
+                            if (fallbackIndex < fallbacks.length - 1) {
+                              e.currentTarget.src = fallbacks[fallbackIndex + 1];
+                              console.log('🔄 Trying homepage fallback thumbnail:', fallbacks[fallbackIndex + 1]);
+                            } else {
+                              // All fallbacks failed, show placeholder
+                              e.currentTarget.style.display = 'none';
+                              const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (placeholder) placeholder.classList.remove('hidden');
+                            }
+                          }}
+                        />
+                      ) : null}
+                      
+                      {/* Fallback placeholder */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black hidden">
+                        <div className="flex items-center justify-center h-full">
+                          <Play className="h-16 w-16 text-neon-orange" />
+                        </div>
                       </div>
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                      
+                      {/* Play overlay */}
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                        <Play className="h-16 w-16 text-white group-hover:text-neon-orange group-hover:scale-110 transition-all" />
+                      </div>
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-semibold text-white mb-2 group-hover:text-neon-orange transition-colors">
