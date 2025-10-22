@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PlaceCard from '@/components/places/PlaceCard';
@@ -23,6 +24,7 @@ const MapComponent = dynamic(() => import('@/components/map/MapComponent'), {
 });
 
 export default function MapPage() {
+  const router = useRouter();
   const [places, setPlaces] = useState<Place[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
@@ -398,7 +400,7 @@ export default function MapPage() {
                         key={place.id}
                         place={place}
                         userLocation={userLocation}
-                        onClick={() => handlePlaceSelect(place)}
+                        onClick={() => router.push(`/place/${place.slug}`)}
                       />
                     ))
                   )}

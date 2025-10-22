@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   selectedPlace,
   className,
 }) => {
+  const router = useRouter();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -207,33 +209,64 @@ const MapComponent: React.FC<MapComponentProps> = ({
       </svg>
     `;
 
+    // Create popup content
+    const popupContent = document.createElement('div');
+    popupContent.style.cssText = `
+      padding: 12px;
+      max-width: 200px;
+      font-family: system-ui, -apple-system, sans-serif;
+    `;
+    
+    const rating = place.rating ? place.rating.toFixed(1) : 'N/A';
+    const priceLevel = place.price_level ? '$'.repeat(place.price_level) : '';
+    const cuisines = place.cuisines.slice(0, 2).join(', ');
+    
+    popupContent.innerHTML = `
+      <div style="margin-bottom: 8px;">
+        <h3 style="font-weight: 600; font-size: 14px; margin: 0 0 4px 0; color: #1f2937;">${place.name}</h3>
+        ${place.is_featured ? '<span style="color: #f59e0b; font-size: 12px;">⭐ Featured</span>' : ''}
+      </div>
+      <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+          <span style="color: #fbbf24;">★</span>
+          <span>${rating}</span>
+          ${priceLevel ? `<span style="margin-left: 8px;">${priceLevel}</span>` : ''}
+        </div>
+        <div style="margin-bottom: 2px;">${cuisines}</div>
+        <div style="color: #9ca3af;">${place.city}, ${place.county}</div>
+      </div>
+      <div style="font-size: 11px; color: #3b82f6; font-weight: 500;">Click to view details →</div>
+    `;
+
+    // Create popup
+    const popup = new maplibregl.Popup({
+      offset: 25,
+      closeButton: false,
+      closeOnClick: false,
+    }).setDOMContent(popupContent);
+
     el.addEventListener('mouseenter', () => {
       el.style.transform = 'scale(1.1)';
+      popup.addTo(map.current!);
     });
 
     el.addEventListener('mouseleave', () => {
       el.style.transform = 'scale(1)';
+      popup.remove();
     });
 
     el.addEventListener('click', () => {
-      onPlaceSelect?.(place);
-      
-      // Fly to place
-      if (map.current) {
-        map.current.flyTo({
-          center: place.location.coordinates,
-          zoom: 15,
-          duration: 1000,
-        });
-      }
+      // Navigate to restaurant detail page
+      router.push(`/place/${place.slug}`);
     });
 
     const marker = new maplibregl.Marker(el)
       .setLngLat(place.location.coordinates)
+      .setPopup(popup)
       .addTo(map.current);
     
     console.log('MapComponent: Marker added to map for:', place.name);
-  }, [onPlaceSelect]);
+  }, [router]);
 
   const createClusterMarker = useCallback((cluster: ClusterPoint) => {
     if (!map.current) return;
