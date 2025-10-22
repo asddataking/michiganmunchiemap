@@ -45,7 +45,9 @@ function SearchContent() {
     };
 
     searchPlaces();
-  }, [query, trackSearch]);
+    // trackSearch is a stable function reference, no need to include in deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   return (
     <div className="min-h-screen flex flex-col">

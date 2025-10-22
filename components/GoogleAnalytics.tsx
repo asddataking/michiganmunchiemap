@@ -2,21 +2,26 @@
 
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
 const GA_MEASUREMENT_ID = 'G-HTZMW82ZF1';
 
-export function GoogleAnalytics() {
+function GoogleAnalyticsTracking() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (pathname) {
       // Track page views on route changes
-      pageview(pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : ''));
+      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+      pageview(url);
     }
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export function GoogleAnalytics() {
   return (
     <>
       <Script
@@ -37,6 +42,9 @@ export function GoogleAnalytics() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <GoogleAnalyticsTracking />
+      </Suspense>
     </>
   );
 }

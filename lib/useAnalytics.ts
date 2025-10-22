@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback } from 'react';
 import * as analytics from './analytics';
 
 /**
@@ -8,65 +7,41 @@ import * as analytics from './analytics';
  * 
  * Usage:
  * const { trackEvent, trackSearch, trackPlaceView } = useAnalytics();
+ * 
+ * Note: The functions are stable references from the analytics module
+ * and don't need memoization.
  */
 export function useAnalytics() {
-  // Wrap all analytics functions in useCallback for performance
-  const trackEvent = useCallback(analytics.trackEvent, []);
-  const trackPageView = useCallback(analytics.trackPageView, []);
-  const trackSearch = useCallback(analytics.trackSearch, []);
-  const trackPlaceView = useCallback(analytics.trackPlaceView, []);
-  const trackPlaceClick = useCallback(analytics.trackPlaceClick, []);
-  const trackPlaceDirections = useCallback(analytics.trackPlaceDirections, []);
-  const trackPlaceWebsite = useCallback(analytics.trackPlaceWebsite, []);
-  const trackPlaceCall = useCallback(analytics.trackPlaceCall, []);
-  const trackFilter = useCallback(analytics.trackFilter, []);
-  const trackClearFilters = useCallback(analytics.trackClearFilters, []);
-  const trackMapInteraction = useCallback(analytics.trackMapInteraction, []);
-  const trackProductView = useCallback(analytics.trackProductView, []);
-  const trackProductClick = useCallback(analytics.trackProductClick, []);
-  const trackDonationStart = useCallback(analytics.trackDonationStart, []);
-  const trackDonationComplete = useCallback(analytics.trackDonationComplete, []);
-  const trackLogin = useCallback(analytics.trackLogin, []);
-  const trackSignup = useCallback(analytics.trackSignup, []);
-  const trackLogout = useCallback(analytics.trackLogout, []);
-  const trackNavigation = useCallback(analytics.trackNavigation, []);
-  const trackEpisodeView = useCallback(analytics.trackEpisodeView, []);
-  const trackEpisodeClick = useCallback(analytics.trackEpisodeClick, []);
-  const trackShare = useCallback(analytics.trackShare, []);
-  const trackOutboundLink = useCallback(analytics.trackOutboundLink, []);
-  const trackCTA = useCallback(analytics.trackCTA, []);
-  const trackFormSubmit = useCallback(analytics.trackFormSubmit, []);
-  const trackVideoPlay = useCallback(analytics.trackVideoPlay, []);
-  const trackError = useCallback(analytics.trackError, []);
-
+  // Return the analytics functions directly
+  // These are stable references and don't need useCallback
   return {
-    trackEvent,
-    trackPageView,
-    trackSearch,
-    trackPlaceView,
-    trackPlaceClick,
-    trackPlaceDirections,
-    trackPlaceWebsite,
-    trackPlaceCall,
-    trackFilter,
-    trackClearFilters,
-    trackMapInteraction,
-    trackProductView,
-    trackProductClick,
-    trackDonationStart,
-    trackDonationComplete,
-    trackLogin,
-    trackSignup,
-    trackLogout,
-    trackNavigation,
-    trackEpisodeView,
-    trackEpisodeClick,
-    trackShare,
-    trackOutboundLink,
-    trackCTA,
-    trackFormSubmit,
-    trackVideoPlay,
-    trackError,
+    trackEvent: analytics.trackEvent,
+    trackPageView: analytics.trackPageView,
+    trackSearch: analytics.trackSearch,
+    trackPlaceView: analytics.trackPlaceView,
+    trackPlaceClick: analytics.trackPlaceClick,
+    trackPlaceDirections: analytics.trackPlaceDirections,
+    trackPlaceWebsite: analytics.trackPlaceWebsite,
+    trackPlaceCall: analytics.trackPlaceCall,
+    trackFilter: analytics.trackFilter,
+    trackClearFilters: analytics.trackClearFilters,
+    trackMapInteraction: analytics.trackMapInteraction,
+    trackProductView: analytics.trackProductView,
+    trackProductClick: analytics.trackProductClick,
+    trackDonationStart: analytics.trackDonationStart,
+    trackDonationComplete: analytics.trackDonationComplete,
+    trackLogin: analytics.trackLogin,
+    trackSignup: analytics.trackSignup,
+    trackLogout: analytics.trackLogout,
+    trackNavigation: analytics.trackNavigation,
+    trackEpisodeView: analytics.trackEpisodeView,
+    trackEpisodeClick: analytics.trackEpisodeClick,
+    trackShare: analytics.trackShare,
+    trackOutboundLink: analytics.trackOutboundLink,
+    trackCTA: analytics.trackCTA,
+    trackFormSubmit: analytics.trackFormSubmit,
+    trackVideoPlay: analytics.trackVideoPlay,
+    trackError: analytics.trackError,
   };
 }
 
