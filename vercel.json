@@ -7,5 +7,18 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://dankndevour.com/$1",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.dankndevour.com"
+        }
+      ],
+      "permanent": true
+    }
+  ]
 }
