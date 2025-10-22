@@ -25,6 +25,7 @@ type FourthwallFeedProduct = {
   available: boolean;
   created_at: string;
   updated_at: string;
+  product_type?: string; // Optional product type/category
 };
 
 async function fetchFourthwallProducts(): Promise<Product[]> {
