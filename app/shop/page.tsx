@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingBag, ExternalLink, Star, Heart, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -171,15 +172,18 @@ export default function ShopPage() {
                     >
                       <div className="aspect-square relative overflow-hidden rounded-t-lg">
                         {product.image && product.image.trim() !== '' ? (
-                          <img 
+                          <Image 
                             src={product.image} 
                             alt={product.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             onError={(e) => {
                               console.log('❌ Product image failed to load:', product.image);
-                              // Fallback to placeholder if image fails to load
+                              // Hide the image and show placeholder
                               e.currentTarget.style.display = 'none';
-                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (placeholder) placeholder.classList.remove('hidden');
                             }}
                           />
                         ) : null}

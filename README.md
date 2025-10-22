@@ -150,6 +150,37 @@ Server-to-server upsert endpoint:
 - Accepts place data in request body
 - Returns created/updated place
 
+## 🛒 Fourthwall Integration
+
+The application integrates with Fourthwall for merchandise sales through the official Storefront API.
+
+### Setup
+
+1. **Get Storefront Token**
+   - Go to [Fourthwall Developer Settings](https://fourthwall.com/settings/developer)
+   - Create a Storefront token for your shop
+   - Add it to your environment variables as `FW_STOREFRONT_TOKEN`
+
+2. **Environment Variables**
+   ```env
+   # Fourthwall Integration
+   FW_STOREFRONT_TOKEN=your_storefront_token_here
+   FW_SHOP_URL=https://your-shop.fourthwall.com
+   FW_COLLECTION_SLUG=all
+   ```
+
+3. **API Features**
+   - **Primary**: Uses official Fourthwall Storefront API for reliable product data and high-quality images
+   - **Fallback**: Automatically falls back to public JSON feed if Storefront API is unavailable
+   - **Image Optimization**: Uses Next.js Image component for optimized loading
+   - **Error Handling**: Graceful fallbacks for missing images and API failures
+
+### API Endpoints
+
+- **GET /api/fourthwall/products**: Fetches products from Fourthwall
+  - Query params: `category`, `limit`
+  - Returns: Array of product objects with images, prices, and checkout URLs
+
 ## 📁 Project Structure
 
 ```

@@ -12,49 +12,154 @@ type Product = {
   checkoutUrl: string;
 };
 
-// Public JSON feed product structure from Fourthwall
-type FourthwallFeedProduct = {
+// Fourthwall Storefront API product structure
+type FourthwallProduct = {
   id: string;
   title: string;
   handle: string;
   description?: string;
-  body_html?: string;
-  price: string;
-  image: string; // This is the main image field in the feed
-  url: string;
+  price: {
+    amount: string;
+    currency_code: string;
+  };
+  images: Array<{
+    url: string;
+    width: number;
+    height: number;
+    alt?: string;
+  }>;
   available: boolean;
-  created_at: string;
-  updated_at: string;
-  product_type?: string; // Optional product type/category
+  product_type?: string;
+  tags?: string[];
+  variants?: Array<{
+    id: string;
+    title: string;
+    price: {
+      amount: string;
+      currency_code: string;
+    };
+    available: boolean;
+  }>;
 };
 
 async function fetchFourthwallProducts(): Promise<Product[]> {
   try {
-    // Use the public JSON feed instead of API endpoints
+    const storefrontToken = process.env.FW_STOREFRONT_TOKEN;
     const shopUrl = process.env.FW_SHOP_URL || 'https://shop.fourthwall.com';
-    const collectionSlug = process.env.FW_COLLECTION_SLUG || 'all';
     
-    console.log('🛒 Fetching products from Fourthwall public JSON feed');
+    if (!storefrontToken) {
+      console.warn('⚠️ No Fourthwall Storefront Token found. Falling back to public JSON feed.');
+      return await fetchFromPublicFeed(shopUrl);
+    }
+    
+    console.log('🛒 Fetching products from Fourthwall Storefront API');
     console.log('Shop URL:', shopUrl);
-    console.log('Collection:', collectionSlug);
-    console.log('Environment FW_SHOP_URL:', process.env.FW_SHOP_URL);
-    console.log('Environment FW_COLLECTION_SLUG:', process.env.FW_COLLECTION_SLUG);
     
-    // Try multiple possible feed URLs
+    // Use the official Storefront API
+    const apiUrl = 'https://storefront-api.fourthwall.com/v1/products';
+    const response = await fetch(`${apiUrl}?storefront_token=${storefrontToken}`, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'DankNDevour-Storefront/1.0'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error(`❌ Storefront API failed: ${response.status} ${response.statusText}`);
+      console.log('🔄 Falling back to public JSON feed...');
+      return await fetchFromPublicFeed(shopUrl);
+    }
+    
+    const data = await response.json();
+    console.log('Raw Storefront API response:', JSON.stringify(data, null, 2));
+    
+    if (!data.products || !Array.isArray(data.products)) {
+      console.log('❌ No products found in Storefront API response');
+      console.log('Response structure:', Object.keys(data));
+      throw new Error('No products found in Storefront API response');
+    }
+
+    const products: Product[] = data.products.map((product: FourthwallProduct) => {
+      // Get the first image from the images array
+      const imageUrl = product.images && product.images.length > 0 ? product.images[0].url : null;
+      
+      // Clean up product name
+      let cleanName = product.title || 'Untitled Product';
+      if (typeof cleanName === 'string') {
+        cleanName = cleanName
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ')
+          .replace(/<[^>]*>/g, '');
+      }
+      
+      // Clean up description
+      let cleanDescription = product.description || '';
+      if (typeof cleanDescription === 'string') {
+        cleanDescription = cleanDescription
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&nbsp;/g, ' ')
+          .replace(/<[^>]*>/g, '')
+          .substring(0, 200) + (cleanDescription.length > 200 ? '...' : '');
+      }
+      
+      // Generate checkout URL
+      const checkoutUrl = `${shopUrl}/products/${product.handle}`;
+      
+      console.log(`📦 Product: ${cleanName}`, {
+        id: product.id,
+        handle: product.handle,
+        imageUrl,
+        price: product.price?.amount,
+        available: product.available,
+        imagesCount: product.images?.length || 0
+      });
+      
+      return {
+        id: product.id?.toString() || product.handle,
+        name: cleanName,
+        description: cleanDescription,
+        price: parseFloat(product.price?.amount || '0') || 0,
+        currency: product.price?.currency_code || 'USD',
+        image: imageUrl || '',
+        category: product.product_type || 'General',
+        inStock: product.available !== false,
+        checkoutUrl: checkoutUrl
+      };
+    });
+
+    console.log(`✅ Successfully fetched ${products.length} products from Fourthwall Storefront API`);
+    console.log('📦 Product titles:', products.map(p => p.name));
+    console.log('📦 Sample product data:', JSON.stringify(products[0], null, 2));
+    return products;
+    
+  } catch (error) {
+    console.error('❌ Error fetching Fourthwall products:', error);
+    throw error;
+  }
+}
+
+// Fallback function for public JSON feed
+async function fetchFromPublicFeed(shopUrl: string): Promise<Product[]> {
+  try {
+    console.log('🔄 Using public JSON feed fallback');
+    
     const possibleUrls = [
-      `${shopUrl}/collections/${collectionSlug}.json`,
       `${shopUrl}/products.json`,
       `${shopUrl}/collections/all.json`,
       `${shopUrl}/collections.json`
     ];
     
-    console.log('🔍 Trying possible feed URLs:', possibleUrls);
-    
     let response;
-    let feedUrl;
     
     for (const url of possibleUrls) {
-      console.log(`🔄 Trying URL: ${url}`);
       try {
         response = await fetch(url, {
           headers: {
@@ -63,14 +168,9 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
           }
         });
         
-        console.log(`Response status for ${url}:`, response.status);
-        
         if (response.ok) {
-          feedUrl = url;
-          console.log(`✅ Successfully connected to: ${url}`);
+          console.log(`✅ Successfully connected to public feed: ${url}`);
           break;
-        } else {
-          console.log(`❌ Failed to fetch ${url}:`, response.status);
         }
       } catch (error) {
         console.log(`❌ Error fetching ${url}:`, error);
@@ -82,64 +182,16 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
     }
     
     const data = await response.json();
-    console.log('Raw feed response:', JSON.stringify(data, null, 2));
     
     if (!data.products || !Array.isArray(data.products)) {
-      console.log('❌ No products found in feed response');
-      console.log('Response structure:', Object.keys(data));
-      throw new Error('No products found in feed response');
+      throw new Error('No products found in public feed response');
     }
 
-    const products: Product[] = data.products.map((product: FourthwallFeedProduct) => {
-      // Handle image from public feed data
-      let imageUrl = product.image || null;
-      
-      // Clean up product name - decode HTML entities and strip tags
-      let cleanName = product.title || 'Untitled Product';
-      if (typeof cleanName === 'string') {
-        // Decode HTML entities
-        cleanName = cleanName
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#39;/g, "'")
-          .replace(/&nbsp;/g, ' ');
-        
-        // Strip HTML tags
-        cleanName = cleanName.replace(/<[^>]*>/g, '');
-      }
-      
-      // Clean up description
-      let cleanDescription = product.description || product.body_html || '';
-      if (typeof cleanDescription === 'string') {
-        // Decode HTML entities
-        cleanDescription = cleanDescription
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#39;/g, "'")
-          .replace(/&nbsp;/g, ' ');
-        
-        // Strip HTML tags
-        cleanDescription = cleanDescription.replace(/<[^>]*>/g, '');
-        
-        // Limit length
-        cleanDescription = cleanDescription.substring(0, 200) + (cleanDescription.length > 200 ? '...' : '');
-      }
-      
-      // Generate checkout URL
+    const products: Product[] = data.products.map((product: any) => {
+      const imageUrl = product.image || null;
+      const cleanName = product.title || 'Untitled Product';
+      const cleanDescription = product.description || '';
       const checkoutUrl = `${shopUrl}/products/${product.handle}`;
-      
-      console.log(`📦 Product: ${cleanName}`, {
-        id: product.id,
-        handle: product.handle,
-        imageUrl,
-        price: product.price,
-        available: product.available,
-        rawImage: product.image
-      });
       
       return {
         id: product.id?.toString() || product.handle,
@@ -154,13 +206,11 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
       };
     });
 
-    console.log(`✅ Successfully fetched ${products.length} products from Fourthwall feed`);
-    console.log('📦 Product titles:', products.map(p => p.name));
-    console.log('📦 Sample product data:', JSON.stringify(products[0], null, 2));
+    console.log(`✅ Successfully fetched ${products.length} products from public feed`);
     return products;
     
   } catch (error) {
-    console.error('❌ Error fetching Fourthwall products:', error);
+    console.error('❌ Error fetching from public feed:', error);
     throw error;
   }
 }
