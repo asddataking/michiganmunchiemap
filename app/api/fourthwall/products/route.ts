@@ -108,11 +108,22 @@ async function fetchFourthwallProducts(): Promise<Product[]> {
           .replace(/&#39;/g, "'")
           .replace(/&nbsp;/g, ' ')
           .replace(/<[^>]*>/g, '')
-          .substring(0, 200) + (cleanDescription.length > 200 ? '...' : '');
+          .trim();
       }
       
-      // Generate checkout URL
-      const checkoutUrl = `${shopUrl}/products/${product.handle}`;
+      // If no description, create one based on the product name
+      if (!cleanDescription) {
+        const productType = product.product_type?.toLowerCase() || 'item';
+        cleanDescription = `Premium ${productType} featuring the Dank'N'Devour brand. High-quality materials and comfortable fit. Perfect for showing your love for Michigan's food and cannabis culture.`;
+      }
+      
+      // Truncate description if too long
+      if (cleanDescription.length > 200) {
+        cleanDescription = cleanDescription.substring(0, 200) + '...';
+      }
+      
+      // Generate checkout URL (ensure no double slashes)
+      const checkoutUrl = `${shopUrl.replace(/\/$/, '')}/products/${product.handle}`;
       
       console.log(`📦 Product: ${cleanName}`, {
         id: product.id,
