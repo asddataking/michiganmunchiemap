@@ -21,20 +21,6 @@ const mockProducts: Product[] = [
     price: 59.99,
     imageUrl: "/placeholder-product.jpg",
     productUrl: "https://shop.fourthwall.com/products/michigan-munchies-hoodie"
-  },
-  {
-    id: "3",
-    name: "HighLife Sticker Pack",
-    price: 9.99,
-    imageUrl: "/placeholder-product.jpg",
-    productUrl: "https://shop.fourthwall.com/products/highlife-sticker-pack"
-  },
-  {
-    id: "4",
-    name: "Cannabis Culture Mug",
-    price: 19.99,
-    imageUrl: "/placeholder-product.jpg",
-    productUrl: "https://shop.fourthwall.com/products/cannabis-culture-mug"
   }
 ];
 

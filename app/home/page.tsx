@@ -8,7 +8,6 @@ import CardPlace from "@/components/CardPlace";
 import CardEpisode from "@/components/CardEpisode";
 import CardProduct from "@/components/CardProduct";
 import CtaDankPass from "@/components/CtaDankPass";
-import CtaSupport from "@/components/CtaSupport";
 import DonationForm from "@/components/DonationForm";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -144,11 +143,10 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {latest.map((place, index) => (
+              {latest.map((place) => (
                 <CardPlace
                   key={place.id}
                   place={place}
-                  index={index}
                 />
               ))}
             </div>
@@ -168,7 +166,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product, index) => (
+              {products.map((product) => (
                 <CardProduct
                   key={product.id}
                   product={{
@@ -179,7 +177,6 @@ export default function HomePage() {
                     image: product.imageUrl,
                     checkoutUrl: product.productUrl
                   }}
-                  index={index}
                 />
               ))}
             </div>
@@ -187,7 +184,6 @@ export default function HomePage() {
         </Section>
 
         <CtaDankPass />
-        <CtaSupport />
         <DonationForm />
 
         <Section title="Latest Episodes" viewAllLink="/episodes">
@@ -203,11 +199,10 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {episodes.map((episode, index) => (
+              {episodes.map((episode) => (
                 <CardEpisode
                   key={episode.id}
                   episode={episode}
-                  index={index}
                 />
               ))}
             </div>

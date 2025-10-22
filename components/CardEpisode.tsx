@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Play, Clock, Calendar } from "lucide-react";
 
 interface Episode {
@@ -17,10 +16,9 @@ interface Episode {
 
 interface CardEpisodeProps {
   episode: Episode;
-  index?: number;
 }
 
-export default function CardEpisode({ episode, index = 0 }: CardEpisodeProps) {
+export default function CardEpisode({ episode }: CardEpisodeProps) {
   const handleEpisodeClick = () => {
     window.open(`https://youtube.com/watch?v=${episode.videoId}`, '_blank');
   };
@@ -34,13 +32,7 @@ export default function CardEpisode({ episode, index = 0 }: CardEpisodeProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      onClick={handleEpisodeClick}
-      className="group cursor-pointer"
-    >
+    <div onClick={handleEpisodeClick} className="group cursor-pointer">
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
         {/* Thumbnail */}
         <div className="aspect-video relative overflow-hidden">
@@ -110,6 +102,6 @@ export default function CardEpisode({ episode, index = 0 }: CardEpisodeProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

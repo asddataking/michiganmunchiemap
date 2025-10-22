@@ -15,14 +15,12 @@ export default function DonationForm() {
   const presetAmounts = [1, 5, 20];
   
   const handleDonate = () => {
-    // Create donation URL with parameters
     const params = new URLSearchParams();
     if (name) params.append('name', name);
     if (message) params.append('message', message);
     params.append('amount', customAmount || selectedAmount.toString());
     
-    const donationUrl = `${supportUrl}?${params.toString()}`;
-    window.open(donationUrl, '_blank');
+    window.open(`${supportUrl}?${params.toString()}`, '_blank');
   };
 
   return (

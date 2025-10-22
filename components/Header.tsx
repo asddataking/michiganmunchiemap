@@ -11,9 +11,7 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "Map", href: "/munchie-map" },
     { name: "Episodes", href: "/episodes" },
-    { name: "Recipes", href: "/recipes" },
     { name: "Shop", href: "/shop" },
-    { name: "Support", href: "/support" },
     { name: "Join DankPass", href: "/join" },
   ];
 
@@ -37,7 +35,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-[#F3F3F3] hover:text-[#FF6A00] transition-colors duration-200 text-sm font-medium"
+                className="text-[#F3F3F3] hover:text-[#FF6A00] transition-colors duration-200 text-base font-medium"
               >
                 {item.name}
               </Link>
@@ -75,7 +73,7 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-[#F3F3F3] hover:text-[#FF6A00] transition-colors duration-200 text-sm font-medium py-2"
+                  className="text-[#F3F3F3] hover:text-[#FF6A00] transition-colors duration-200 text-base font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}

@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { MapPin, Star, ArrowRight } from "lucide-react";
 
 interface Place {
@@ -17,22 +16,16 @@ interface Place {
 
 interface CardPlaceProps {
   place: Place;
-  index?: number;
 }
 
-export default function CardPlace({ place, index = 0 }: CardPlaceProps) {
+export default function CardPlace({ place }: CardPlaceProps) {
   const cuisine = place.cuisines?.[0] || "Restaurant";
   const city = place.city || "Michigan";
   const rating = place.rating || 4.8;
   const imageUrl = place.image || "/placeholder-place.jpg";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group"
-    >
+    <div className="group">
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
         {/* Image */}
         <div className="aspect-video relative overflow-hidden">
@@ -76,6 +69,6 @@ export default function CardPlace({ place, index = 0 }: CardPlaceProps) {
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

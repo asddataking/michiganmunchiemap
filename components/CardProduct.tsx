@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 
 interface Product {
@@ -15,10 +14,9 @@ interface Product {
 
 interface CardProductProps {
   product: Product;
-  index?: number;
 }
 
-export default function CardProduct({ product, index = 0 }: CardProductProps) {
+export default function CardProduct({ product }: CardProductProps) {
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -27,12 +25,7 @@ export default function CardProduct({ product, index = 0 }: CardProductProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group"
-    >
+    <div className="group">
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-black/20">
         {/* Image */}
         <div className="aspect-square relative overflow-hidden">
@@ -74,6 +67,6 @@ export default function CardProduct({ product, index = 0 }: CardProductProps) {
           </a>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
