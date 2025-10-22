@@ -36,9 +36,19 @@ export const supabase = (() => {
 // Server-side client with service role key for admin operations
 export const supabaseAdmin = (() => {
   if (!supabaseAdminInstance) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                          process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY || 
+                          supabaseAnonKey;
+    
+    console.log('🔧 Supabase Admin Config:', {
+      url: supabaseUrl ? 'Set' : 'Missing',
+      serviceRoleKey: serviceRoleKey ? 'Set' : 'Missing',
+      usingServiceRole: serviceRoleKey !== supabaseAnonKey
+    });
+    
     supabaseAdminInstance = createClient(
       supabaseUrl,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
+      serviceRoleKey,
       {
         auth: {
           persistSession: false,

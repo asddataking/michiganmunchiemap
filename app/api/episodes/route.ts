@@ -50,21 +50,25 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       console.log(`📺 Processing item ${index}:`, {
         title: item.title,
         link: item.link,
-        extractedVideoId: videoId,
-        rawItem: JSON.stringify(item, null, 2)
+        extractedVideoId: videoId
       });
       
-      if (!videoId) {
-        console.log(`⚠️ Could not extract video ID from: ${item.link}`);
-        console.log(`⚠️ Full item data:`, item);
+      // Only generate thumbnail for valid YouTube video IDs
+      let thumbnail = '';
+      if (videoId && videoId.length === 11 && !videoId.startsWith('video-')) {
+        thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      } else {
+        console.log(`⚠️ Invalid video ID: ${videoId}, skipping thumbnail`);
         videoId = `video-${index}`;
       }
-      
-        // Generate YouTube thumbnail URL with fallback
-        const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
         
-        // Clean up description
-      const description = item.contentSnippet || item.content || item.description || '';
+      // Clean up description - try multiple sources
+      let description = item.contentSnippet || item.content || item.description || '';
+      
+      // If description is empty, try to extract from title or use a default
+      if (!description.trim()) {
+        description = `Watch ${item.title || 'this episode'} on our YouTube channel!`;
+      }
       
       const episode = {
         id: videoId,

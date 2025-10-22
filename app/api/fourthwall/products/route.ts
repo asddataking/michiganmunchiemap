@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ProductsCacheService } from '@/lib/products-cache';
 
 type Product = {
   id: string;
@@ -220,8 +221,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const limit = parseInt(searchParams.get('limit') || '50');
+    const forceRefresh = searchParams.get('refresh') === 'true';
     
-    const products = await fetchFourthwallProducts();
+    console.log('🛒 Products API called with params:', { category, limit, forceRefresh });
+    
+    let products: Product[] = [];
+    
+    // Try to get cached products first (unless force refresh is requested)
+    if (!forceRefresh) {
+      const cachedProducts = await ProductsCacheService.getCachedProducts();
+      if (cachedProducts && cachedProducts.length > 0) {
+        console.log(`✅ Using ${cachedProducts.length} cached products`);
+        products = cachedProducts;
+      }
+    }
+    
+    // If no cached products or force refresh, fetch from Fourthwall
+    if (products.length === 0 || forceRefresh) {
+      console.log('🔄 Fetching fresh products from Fourthwall...');
+      products = await fetchFourthwallProducts();
+      
+      // Cache the fresh products
+      try {
+        await ProductsCacheService.cacheProducts(products);
+      } catch (cacheError) {
+        console.error('⚠️ Failed to cache products (non-critical):', cacheError);
+        // Don't throw here - the API should still work even if caching fails
+      }
+    }
     
     // Filter by category if specified
     let filteredProducts = products;
@@ -231,6 +258,8 @@ export async function GET(request: NextRequest) {
     
     // Limit results
     const limitedProducts = filteredProducts.slice(0, limit);
+    
+    console.log(`📦 Returning ${limitedProducts.length} products (${products.length} total)`);
     
     return NextResponse.json(limitedProducts);
     

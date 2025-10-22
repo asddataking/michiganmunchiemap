@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Play, Calendar, Clock, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,11 +150,13 @@ export default function EpisodesPage() {
                       onClick={() => handleEpisodeClick(episode)}
                     >
                       <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                        {episode.thumbnail ? (
-                          <img 
+                        {episode.thumbnail && episode.videoId && !episode.videoId.startsWith('video-') ? (
+                          <Image 
                             src={episode.thumbnail} 
                             alt={episode.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             onError={(e) => {
                               console.log('❌ Thumbnail failed to load:', episode.thumbnail);
                               // Try fallback thumbnail sizes
@@ -173,12 +176,13 @@ export default function EpisodesPage() {
                               } else {
                                 // All fallbacks failed, show placeholder
                                 e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (placeholder) placeholder.classList.remove('hidden');
                               }
                             }}
                           />
                         ) : null}
-                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${episode.thumbnail ? 'hidden' : ''}`}>
+                        <div className={`absolute inset-0 bg-gradient-to-br from-dank-black-light to-dank-black flex items-center justify-center ${episode.thumbnail && episode.videoId && !episode.videoId.startsWith('video-') ? 'hidden' : ''}`}>
                           <div className="relative">
                             <Play className="h-16 w-16 text-neon-orange group-hover:scale-110 transition-transform" />
                             <div className="absolute inset-0 bg-neon-orange/20 rounded-full blur-lg group-hover:bg-neon-orange/30 transition-colors"></div>
