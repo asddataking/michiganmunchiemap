@@ -9,6 +9,7 @@ import CardEpisode from "@/components/CardEpisode";
 import CardProduct from "@/components/CardProduct";
 import CtaDankPass from "@/components/CtaDankPass";
 import CtaSupport from "@/components/CtaSupport";
+import DonationForm from "@/components/DonationForm";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getProducts } from "@/lib/fourthwall";
@@ -187,6 +188,7 @@ export default function HomePage() {
 
         <CtaDankPass />
         <CtaSupport />
+        <DonationForm />
 
         <Section title="Latest Episodes" viewAllLink="/episodes">
           {loading ? (
