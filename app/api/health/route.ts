@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
         fourthwallToken: process.env.FW_STOREFRONT_TOKEN ? 'Set' : 'Missing',
         youtubeApiKey: process.env.YOUTUBE_API_KEY ? 'Set' : 'Missing',
         youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID ? 'Set' : 'Missing',
-        youtubeRss: process.env.YOUTUBE_RSS_URL ? 'Set' : 'Missing'
+        youtubeApi: process.env.YOUTUBE_API_KEY ? 'Set' : 'Missing'
       },
       status: 'OK'
     };

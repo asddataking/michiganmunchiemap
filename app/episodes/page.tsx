@@ -162,6 +162,7 @@ export default function EpisodesPage() {
                               // Try fallback thumbnail sizes
                               const videoId = episode.videoId;
                               const fallbacks = [
+                                `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                                 `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
                                 `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
                                 `https://img.youtube.com/vi/${videoId}/default.jpg`

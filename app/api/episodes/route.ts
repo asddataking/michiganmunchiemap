@@ -98,12 +98,8 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
     const detailsData = await detailsResponse.json();
     
     const episodes: Episode[] = detailsData.items.map((video: YouTubeVideo) => {
-      // Use the highest quality thumbnail available
-      const thumbnail = video.snippet.thumbnails.maxres?.url || 
-                      video.snippet.thumbnails.standard?.url || 
-                      video.snippet.thumbnails.high?.url || 
-                      video.snippet.thumbnails.medium?.url || 
-                      video.snippet.thumbnails.default?.url;
+      // Use high quality thumbnail URL format for better reliability
+      const thumbnail = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
       
       // Format duration from ISO 8601 to readable format
       const duration = formatDuration(video.contentDetails.duration);
@@ -128,93 +124,10 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
     
   } catch (error) {
     console.error('❌ Error fetching YouTube episodes:', error);
-    
-    // Fallback to RSS feed if API fails
-    console.log('🔄 Falling back to RSS feed...');
-    return await fetchYouTubeEpisodesFromRSS();
-  }
-}
-
-async function fetchYouTubeEpisodesFromRSS(): Promise<Episode[]> {
-  try {
-    const rssUrl = process.env.YOUTUBE_RSS_URL;
-    
-    if (!rssUrl) {
-      console.log('❌ No YouTube RSS URL configured');
-      return [];
-    }
-
-    console.log('📺 Fetching YouTube RSS feed:', rssUrl);
-    
-    const Parser = (await import('rss-parser')).default;
-    const parser = new Parser({
-      customFields: {
-        item: [
-          ['media:group', 'mediaGroup'],
-          ['yt:videoId', 'videoId'],
-        ],
-      },
-    });
-
-    const feed = await parser.parseURL(rssUrl);
-    
-    if (!feed.items || feed.items.length === 0) {
-      console.log('⚠️ No items found in RSS feed');
-      return [];
-    }
-
-    const episodes: Episode[] = feed.items.map((item, index) => {
-      let videoId = item.link?.match(/watch\?v=([^&]+)/)?.[1] || 
-                   item.link?.match(/youtu\.be\/([^?]+)/)?.[1];
-      
-      console.log(`📺 Processing item ${index}:`, {
-        title: item.title,
-        link: item.link,
-        extractedVideoId: videoId
-      });
-      
-      let thumbnail = '';
-      if (!videoId || videoId.length !== 11 || videoId.startsWith('video-')) {
-        console.log(`⚠️ Invalid video ID: ${videoId}, skipping thumbnail`);
-        videoId = `video-${index}`;
-      } else {
-        thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-      }
-        
-      let description = (item as any).contentSnippet || (item as any).content || (item as any).description || '';
-      
-      if (!description.trim()) {
-        description = `Watch ${item.title || 'this episode'} on our YouTube channel!`;
-      }
-      
-      const episode = {
-        id: videoId,
-        title: item.title || `Episode ${index + 1}`,
-        description: description.substring(0, 200) + (description.length > 200 ? '...' : ''),
-        thumbnail,
-        publishedAt: (item as any).pubDate || new Date().toISOString(),
-        videoId,
-        duration: undefined,
-        viewCount: undefined
-      };
-      
-      console.log(`✅ Created episode:`, {
-        id: episode.id,
-        title: episode.title,
-        thumbnail: episode.thumbnail
-      });
-      
-      return episode;
-    });
-
-    console.log(`✅ Successfully fetched ${episodes.length} episodes from RSS feed`);
-    return episodes;
-    
-  } catch (error) {
-    console.error('❌ Error fetching YouTube episodes from RSS:', error);
     return [];
   }
 }
+
 
 function formatDuration(isoDuration: string): string {
   // Convert ISO 8601 duration (PT4M13S) to readable format (4:13)
