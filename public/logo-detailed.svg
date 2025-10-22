@@ -1,0 +1,21 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="60" fill="#000000"/>
+  
+  <!-- DANK N -->
+  <text x="100" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle" transform="skewX(5)">
+    DANK N
+  </text>
+  
+  <!-- DEVOUR -->
+  <text x="100" y="45" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle" transform="skewX(5)">
+    DEVOUR
+  </text>
+  
+  <!-- Special N with distinctive outline -->
+  <g transform="translate(85, 15)">
+    <!-- N character -->
+    <path d="M0 0 L0 12 L2 12 L2 4 L6 12 L8 12 L8 0 L6 0 L6 8 L2 0 Z" fill="white" transform="skewX(5)"/>
+    <!-- Outline box with cut corner -->
+    <path d="M-1 -1 L7 -1 L7 13 L-1 13 L-1 2 L1 2 L1 0 L-1 0 Z" fill="none" stroke="white" stroke-width="1" transform="skewX(5)"/>
+  </g>
+</svg>

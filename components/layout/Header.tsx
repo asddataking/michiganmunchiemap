@@ -25,20 +25,11 @@ const Header: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="w-8 h-8 bg-gradient-to-br from-neon-orange to-neon-orange-dark rounded-lg flex items-center justify-center neon-glow">
-                <MapPin className="h-5 w-5 text-dank-black" />
-              </div>
-              <div className="absolute inset-0 bg-neon-orange/20 rounded-lg blur-sm group-hover:bg-neon-orange/30 transition-colors"></div>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg text-white group-hover:text-neon-orange transition-colors">
-                DankNDevour
-              </span>
-              <span className="text-xs text-muted-foreground font-medium">
-                Food • Travel • Culture
-              </span>
-            </div>
+            <img 
+              src="/logo-detailed.svg" 
+              alt="DANK N DEVOUR" 
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import PlaceCard from '@/components/places/PlaceCard';
 import PlaceFilters from '@/components/filters/PlaceFilters';
 import { Button } from '@/components/ui/button';
@@ -255,20 +253,14 @@ export default function MapPage() {
   // Show loading state until mounted
   if (!mounted) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
-        </main>
-      </div>
+      <main className="flex-1 flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-1 flex">
+    <main className="flex-1 flex">
         {/* Filters Sidebar */}
         <div className="hidden lg:block w-80 p-4 border-r bg-background">
           <PlaceFilters
@@ -408,9 +400,6 @@ export default function MapPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 }

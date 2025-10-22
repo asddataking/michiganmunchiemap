@@ -25,10 +25,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">D</span>
-              </div>
-              <span className="text-[#F3F3F3] font-bold text-xl">DankNDevour</span>
+              <img 
+                src="/logo-detailed.svg" 
+                alt="DANK N DEVOUR" 
+                className="h-8 w-auto"
+              />
             </Link>
             <p className="text-[#F3F3F3]/70 text-sm leading-relaxed">
               Your ultimate guide to Michigan's best food experiences, travel destinations, and cannabis culture. 
