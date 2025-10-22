@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
         supabaseAnonKey: (process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ? 'Set' : 'Missing',
         serviceRoleKey: (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY) ? 'Set' : 'Missing',
         fourthwallToken: process.env.FW_STOREFRONT_TOKEN ? 'Set' : 'Missing',
+        youtubeApiKey: process.env.YOUTUBE_API_KEY ? 'Set' : 'Missing',
+        youtubeChannelId: process.env.YOUTUBE_CHANNEL_ID ? 'Set' : 'Missing',
         youtubeRss: process.env.YOUTUBE_RSS_URL ? 'Set' : 'Missing'
       },
       status: 'OK'
