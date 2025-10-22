@@ -181,7 +181,7 @@ async function fetchYouTubeEpisodesFromRSS(): Promise<Episode[]> {
         thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
         
-      let description = item.contentSnippet || item.content || item.description || '';
+      let description = (item as any).contentSnippet || (item as any).content || (item as any).description || '';
       
       if (!description.trim()) {
         description = `Watch ${item.title || 'this episode'} on our YouTube channel!`;
@@ -192,7 +192,7 @@ async function fetchYouTubeEpisodesFromRSS(): Promise<Episode[]> {
         title: item.title || `Episode ${index + 1}`,
         description: description.substring(0, 200) + (description.length > 200 ? '...' : ''),
         thumbnail,
-        publishedAt: item.pubDate || new Date().toISOString(),
+        publishedAt: (item as any).pubDate || new Date().toISOString(),
         videoId,
         duration: undefined,
         viewCount: undefined
