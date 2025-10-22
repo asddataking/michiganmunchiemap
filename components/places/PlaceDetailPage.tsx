@@ -14,7 +14,8 @@ import {
   Star, 
   ArrowLeft,
   Navigation,
-  ExternalLink
+  ExternalLink,
+  ArrowRight
 } from 'lucide-react';
 import { Place } from '@/types';
 import { formatPriceLevel, formatPhoneNumber, calculateDistance } from '@/lib/utils';
@@ -73,7 +74,7 @@ const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
       {/* Header */}
       <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/munchie-map" className="flex items-center space-x-2">
             <ArrowLeft className="h-5 w-5" />
             <span>Back to Map</span>
           </Link>
@@ -252,6 +253,32 @@ const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
                     </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* DankPass CTA */}
+            <Card className="bg-gradient-to-r from-[#FF6A00]/10 to-orange-600/10 border-[#FF6A00]/20">
+              <CardContent className="p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#FF6A00] to-orange-600 rounded-xl flex items-center justify-center">
+                    <Star className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-foreground mb-2">
+                  Earn points. Unlock perks.
+                </h3>
+                
+                <p className="text-sm text-muted-foreground mb-4">
+                  Join DankPass and start earning rewards for every visit and interaction.
+                </p>
+                
+                <Link href="/join">
+                  <Button className="bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white font-semibold px-6 py-2 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-[#FF6A00]/25">
+                    Join DankPass
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
