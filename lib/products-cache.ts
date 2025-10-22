@@ -114,6 +114,26 @@ export class ProductsCacheService {
   }
 
   /**
+   * Clear all cache entries
+   */
+  static async clearAllCache(): Promise<void> {
+    try {
+      const { error } = await supabaseAdmin
+        .from('products_cache')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (error) {
+        console.error('❌ Error clearing all cache:', error);
+      } else {
+        console.log('🧹 Cleared all product cache entries');
+      }
+    } catch (error) {
+      console.error('❌ Error in clearAllCache:', error);
+    }
+  }
+
+  /**
    * Clear expired cache entries
    */
   static async clearExpiredCache(): Promise<void> {

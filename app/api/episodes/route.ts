@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { EpisodesCacheService } from '@/lib/episodes-cache';
 
 type Episode = {
   id: string;
@@ -158,15 +159,43 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
+    const forceRefresh = searchParams.get('refresh') === 'true';
     
-    console.log('📺 Episodes API called with limit:', limit);
+    console.log('📺 Episodes API called with params:', { limit, forceRefresh });
     
-    const episodes = await fetchYouTubeEpisodes();
+    let episodes: Episode[] = [];
+    
+    // Try to get cached episodes first (unless force refresh is requested)
+    if (!forceRefresh) {
+      try {
+        const cachedEpisodes = await EpisodesCacheService.getCachedEpisodes();
+        if (cachedEpisodes && cachedEpisodes.length > 0) {
+          console.log(`✅ Using ${cachedEpisodes.length} cached episodes`);
+          episodes = cachedEpisodes;
+        }
+      } catch (cacheError) {
+        console.error('⚠️ Cache read failed, falling back to YouTube API:', cacheError);
+        // Continue to fetch from YouTube
+      }
+    }
+    
+    // If no cached episodes or force refresh, fetch from YouTube API
+    if (episodes.length === 0 || forceRefresh) {
+      console.log('🔄 Fetching fresh episodes from YouTube API...');
+      episodes = await fetchYouTubeEpisodes();
+      
+      // Cache the fresh episodes (non-blocking)
+      if (episodes.length > 0) {
+        EpisodesCacheService.cacheEpisodes(episodes).catch(cacheError => {
+          console.error('⚠️ Failed to cache episodes (non-critical):', cacheError);
+        });
+      }
+    }
     
     // Limit results
     const limitedEpisodes = episodes.slice(0, limit);
     
-    console.log(`📺 Returning ${limitedEpisodes.length} episodes`);
+    console.log(`📺 Returning ${limitedEpisodes.length} episodes (${episodes.length} total in cache)`);
     
     return NextResponse.json(limitedEpisodes);
     
