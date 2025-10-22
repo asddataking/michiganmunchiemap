@@ -229,10 +229,15 @@ export async function GET(request: NextRequest) {
     
     // Try to get cached products first (unless force refresh is requested)
     if (!forceRefresh) {
-      const cachedProducts = await ProductsCacheService.getCachedProducts();
-      if (cachedProducts && cachedProducts.length > 0) {
-        console.log(`✅ Using ${cachedProducts.length} cached products`);
-        products = cachedProducts;
+      try {
+        const cachedProducts = await ProductsCacheService.getCachedProducts();
+        if (cachedProducts && cachedProducts.length > 0) {
+          console.log(`✅ Using ${cachedProducts.length} cached products`);
+          products = cachedProducts;
+        }
+      } catch (cacheError) {
+        console.error('⚠️ Cache read failed, falling back to direct API:', cacheError);
+        // Continue to fetch from Fourthwall
       }
     }
     
@@ -241,13 +246,10 @@ export async function GET(request: NextRequest) {
       console.log('🔄 Fetching fresh products from Fourthwall...');
       products = await fetchFourthwallProducts();
       
-      // Cache the fresh products
-      try {
-        await ProductsCacheService.cacheProducts(products);
-      } catch (cacheError) {
+      // Cache the fresh products (non-blocking)
+      ProductsCacheService.cacheProducts(products).catch(cacheError => {
         console.error('⚠️ Failed to cache products (non-critical):', cacheError);
-        // Don't throw here - the API should still work even if caching fails
-      }
+      });
     }
     
     // Filter by category if specified

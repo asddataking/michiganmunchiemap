@@ -55,11 +55,11 @@ async function fetchYouTubeEpisodes(): Promise<Episode[]> {
       
       // Only generate thumbnail for valid YouTube video IDs
       let thumbnail = '';
-      if (videoId && videoId.length === 11 && !videoId.startsWith('video-')) {
-        thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-      } else {
+      if (!videoId || videoId.length !== 11 || videoId.startsWith('video-')) {
         console.log(`⚠️ Invalid video ID: ${videoId}, skipping thumbnail`);
         videoId = `video-${index}`;
+      } else {
+        thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
         
       // Clean up description - try multiple sources

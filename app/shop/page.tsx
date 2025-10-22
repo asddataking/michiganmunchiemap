@@ -65,11 +65,16 @@ export default function ShopPage() {
   };
 
   useEffect(() => {
+    console.log('🛒 Shop page useEffect triggered');
     loadProductsWithCache().then((result) => {
       console.log('🛒 Shop page received products:', result);
-      console.log('🛒 First product image:', result[0]?.image);
+      console.log('🛒 Products count:', result.length);
+      console.log('🛒 First product:', result[0]);
       setProducts(result);
       setLastUpdated(new Date());
+      setLoading(false);
+    }).catch((error) => {
+      console.error('🛒 Error loading products:', error);
       setLoading(false);
     });
   }, []);
