@@ -187,13 +187,29 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
     console.log('MapComponent: Creating marker for place:', place.name, 'at coordinates:', place.location.coordinates);
 
+    // Determine marker color based on type
+    const isDispensary = place.cuisines.includes('Cannabis') || place.tags.some((tag: string) => 
+      tag.toLowerCase().includes('dispensary')
+    );
+    
+    let markerColor;
+    let markerSize;
+    
+    if (isDispensary) {
+      markerColor = '#FF6A00'; // Orange for dispensaries
+      markerSize = '50px'; // Larger for dispensaries
+    } else {
+      markerColor = place.is_featured ? '#f59e0b' : '#3b82f6';
+      markerSize = '40px';
+    }
+    
     const el = document.createElement('div');
     el.className = 'place-marker';
     el.style.cssText = `
-      width: 40px;
-      height: 40px;
+      width: ${markerSize};
+      height: ${markerSize};
       border-radius: 50%;
-      background: ${place.is_featured ? '#f59e0b' : '#3b82f6'};
+      background: ${markerColor};
       border: 3px solid white;
       cursor: pointer;
       display: flex;
