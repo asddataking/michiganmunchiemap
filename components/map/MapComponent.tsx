@@ -187,10 +187,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
     console.log('MapComponent: Creating marker for place:', place.name, 'at coordinates:', place.location.coordinates);
 
-    // Determine marker color based on type
-    const isDispensary = place.cuisines.includes('Cannabis') || place.tags.some((tag: string) => 
-      tag.toLowerCase().includes('dispensary')
-    );
+    // Determine marker color based on type (case-insensitive across cuisines and tags)
+    const cuisinesLower = (place.cuisines || []).map((c) => c.toLowerCase());
+    const tagsLower = (place.tags || []).map((t) => t.toLowerCase());
+    const isDispensary =
+      cuisinesLower.some((c) => c.includes('cannabis') || c.includes('dispensary')) ||
+      tagsLower.some((t) => t.includes('cannabis') || t.includes('dispensary'));
     
     let markerColor;
     let markerSize;
@@ -217,6 +219,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       transition: transform 0.2s ease;
+      z-index: 2;
+      pointer-events: auto;
     `;
 
     el.innerHTML = `
@@ -399,6 +403,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
         <div className="flex items-center gap-2 mb-2">
           <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
           <span>Featured Places</span>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#FF6A00' }}></div>
+          <span>Dispensaries</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
