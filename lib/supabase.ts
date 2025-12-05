@@ -195,9 +195,45 @@ export class PlacesService {
       featured?: boolean;
       verified?: boolean;
     } = {},
-    limit: number = 50
+    limit: number = 50,
+    useEdgeFunction: boolean = true
   ): Promise<Place[]> {
-    // Use RPC function for search to get proper GeoJSON location data
+    // Try edge function first if enabled, fallback to RPC
+    if (useEdgeFunction) {
+      try {
+        const edgeFunctionUrl = `${supabaseUrl}/functions/v1/search-places`;
+        const response = await fetch(edgeFunctionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({
+            search_text: searchTerm || undefined,
+            county_filter: filters.counties?.length ? filters.counties : undefined,
+            cuisine_filter: filters.cuisines?.length ? filters.cuisines : undefined,
+            tag_filter: filters.tags?.length ? filters.tags : undefined,
+            min_price: filters.priceRange?.[0] || 1,
+            max_price: filters.priceRange?.[1] || 4,
+            min_rating: filters.minRating || 0,
+            featured_only: filters.featured || false,
+            verified_only: filters.verified || false,
+            limit_count: limit,
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          return result.data || [];
+        } else {
+          console.warn('Edge function failed, falling back to RPC');
+        }
+      } catch (err) {
+        console.warn('Edge function error, falling back to RPC:', err);
+      }
+    }
+
+    // Fallback to RPC function
     try {
       const { data, error } = await supabase.rpc('search_places', {
         search_text: searchTerm || null,
@@ -251,6 +287,70 @@ export class PlacesService {
     }
 
     return true;
+  }
+
+  static async getFilterOptions(useEdgeFunction: boolean = true): Promise<{
+    counties: string[];
+    cuisines: string[];
+    tags: string[];
+  }> {
+    // Try edge function first if enabled
+    if (useEdgeFunction) {
+      try {
+        const edgeFunctionUrl = `${supabaseUrl}/functions/v1/get-filter-options`;
+        const response = await fetch(edgeFunctionUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          return result.data || { counties: [], cuisines: [], tags: [] };
+        } else {
+          console.warn('Edge function failed for filter options, falling back to direct query');
+        }
+      } catch (err) {
+        console.warn('Edge function error for filter options, falling back to direct query:', err);
+      }
+    }
+
+    // Fallback: Query database directly
+    try {
+      const { data: places, error } = await supabase
+        .from('places')
+        .select('county, cuisines, tags')
+        .eq('status', 'published');
+
+      if (error) {
+        console.error('Error fetching filter options:', error);
+        return { counties: [], cuisines: [], tags: [] };
+      }
+
+      const counties = new Set<string>();
+      const cuisines = new Set<string>();
+      const tags = new Set<string>();
+
+      places?.forEach((place) => {
+        if (place.county) counties.add(place.county);
+        if (place.cuisines && Array.isArray(place.cuisines)) {
+          place.cuisines.forEach((c: string) => cuisines.add(c));
+        }
+        if (place.tags && Array.isArray(place.tags)) {
+          place.tags.forEach((t: string) => tags.add(t));
+        }
+      });
+
+      return {
+        counties: Array.from(counties).sort(),
+        cuisines: Array.from(cuisines).sort(),
+        tags: Array.from(tags).sort(),
+      };
+    } catch (err) {
+      console.error('Error in getFilterOptions:', err);
+      return { counties: [], cuisines: [], tags: [] };
+    }
   }
 
   static async getDashboardStats() {

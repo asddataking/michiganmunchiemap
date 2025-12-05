@@ -59,7 +59,7 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
 
   return (
     <Card 
-      className={`cursor-pointer hover:shadow-lg transition-shadow duration-200 ${className}`}
+      className={`card-hover cursor-pointer bg-card/50 backdrop-blur-sm border border-border/50 ${className}`}
       onClick={handleCardClick}
     >
       <CardHeader className={compact ? "pb-2 p-3 lg:pb-3 lg:p-6" : "pb-3"}>
@@ -70,7 +70,10 @@ const PlaceCard: React.FC<PlaceCardProps> = ({
                 {place.name}
               </h3>
               {place.is_featured && (
-                <Star className={`text-yellow-500 fill-current ${compact ? 'h-3 w-3 lg:h-4 lg:w-4' : 'h-4 w-4'}`} />
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-full">
+                  <Star className={`text-yellow-500 fill-current ${compact ? 'h-3 w-3 lg:h-4 lg:w-4' : 'h-4 w-4'}`} />
+                  <span className={`text-yellow-500 font-semibold ${compact ? 'text-[10px] lg:text-xs' : 'text-xs'}`}>Featured</span>
+                </div>
               )}
               {place.is_verified && (
                 <div className={`bg-blue-500 rounded-full ${compact ? 'w-1.5 h-1.5 lg:w-2 lg:h-2' : 'w-2 h-2'}`} title="Verified" />

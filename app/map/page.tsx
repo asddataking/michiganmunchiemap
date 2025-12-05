@@ -7,6 +7,7 @@ import PlaceCard from '@/components/places/PlaceCard';
 import PlaceFilters from '@/components/filters/PlaceFilters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Search, Map, List, Filter, Star, MapPin, RefreshCw } from 'lucide-react';
 import { Place, MapFilters, BoundingBox } from '@/types';
 import { PlacesService } from '@/lib/supabase';
@@ -218,6 +219,16 @@ export default function MapPage() {
     setFilteredPlaces(filtered);
   }, [places, searchTerm, filters]);
 
+  const hasActiveFilters = 
+    filters.counties.length > 0 ||
+    filters.cuisines.length > 0 ||
+    filters.tags.length > 0 ||
+    filters.priceRange[0] !== 1 ||
+    filters.priceRange[1] !== 4 ||
+    filters.rating > 0 ||
+    filters.featured ||
+    filters.verified;
+
   const loadPlacesInBounds = async (minLng: number, minLat: number, maxLng: number, maxLat: number) => {
     console.log('Bounds changed but showing ALL places (no filtering):', { minLng, minLat, maxLng, maxLat });
 
@@ -290,51 +301,104 @@ export default function MapPage() {
             </div>
           </div>
 
-          {/* View Mode Toggle */}
-          <div className="p-4 border-b bg-background">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={viewMode === 'split' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('split')}
-                >
-                  <Map className="h-4 w-4 mr-2" />
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'map' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('map')}
-                >
-                  <Map className="h-4 w-4 mr-2" />
-                  Map
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="h-4 w-4 mr-2" />
-                  List
-                </Button>
+          {/* Sticky Search & Filter Bar */}
+          <div className="sticky-header sticky top-0 z-40 p-4 border-b">
+            <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+              {/* Search Bar */}
+              <div className="flex-1 relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search places, cities, counties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/80 backdrop-blur-sm"
+                />
               </div>
-              
-              <div className="flex items-center gap-2">
-                <div className="text-sm text-muted-foreground">
-                  {filteredPlaces.length} places
+
+              {/* View Mode Toggle & Controls */}
+              <div className="flex items-center gap-2 lg:gap-3">
+                <div className="flex items-center space-x-1 lg:space-x-2">
+                  <Button
+                    variant={viewMode === 'split' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('split')}
+                    className="hidden sm:flex"
+                  >
+                    <Map className="h-4 w-4 mr-2" />
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'map' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('map')}
+                  >
+                    <Map className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Map</span>
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">List</span>
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRefreshData}
-                  className="h-8 w-8 p-0"
-                  title="Refresh data (loads fresh from API)"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium text-muted-foreground hidden sm:block">
+                    {filteredPlaces.length} {filteredPlaces.length === 1 ? 'place' : 'places'}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRefreshData}
+                    className="h-8 w-8 p-0"
+                    title="Refresh data (loads fresh from API)"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {/* Active Filters Pills */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border/50">
+                <span className="text-xs text-muted-foreground mr-1">Active:</span>
+                {filters.counties.map((county) => (
+                  <span
+                    key={county}
+                    className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full border border-primary/30"
+                  >
+                    {county}
+                  </span>
+                ))}
+                {filters.cuisines.slice(0, 3).map((cuisine) => (
+                  <span
+                    key={cuisine}
+                    className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full border border-primary/30"
+                  >
+                    {cuisine}
+                  </span>
+                ))}
+                {filters.cuisines.length > 3 && (
+                  <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                    +{filters.cuisines.length - 3} more
+                  </span>
+                )}
+                {filters.featured && (
+                  <span className="px-2 py-1 bg-yellow-500/20 text-yellow-500 text-xs rounded-full border border-yellow-500/30">
+                    ⭐ Featured
+                  </span>
+                )}
+                {filters.verified && (
+                  <span className="px-2 py-1 bg-blue-500/20 text-blue-500 text-xs rounded-full border border-blue-500/30">
+                    ✓ Verified
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Content Area - Vertical stack on mobile, horizontal split on desktop */}
@@ -364,11 +428,20 @@ export default function MapPage() {
                   {loading ? (
                     <div className="space-y-2 lg:space-y-4">
                       {[...Array(5)].map((_, i) => (
-                        <Card key={i} className="animate-pulse">
+                        <Card key={i} className="skeleton-pulse bg-card/50 backdrop-blur-sm border border-border/50">
                           <CardContent className="p-3 lg:p-4">
-                            <div className="h-4 bg-muted rounded mb-2"></div>
-                            <div className="h-3 bg-muted rounded w-2/3 mb-2"></div>
-                            <div className="h-3 bg-muted rounded w-1/2"></div>
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1 space-y-2">
+                                <div className="h-5 bg-muted/50 rounded w-3/4"></div>
+                                <div className="h-4 bg-muted/30 rounded w-1/2"></div>
+                                <div className="h-3 bg-muted/20 rounded w-2/3"></div>
+                              </div>
+                              <div className="w-16 h-16 bg-muted/30 rounded-lg"></div>
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <div className="h-6 bg-muted/30 rounded-full w-20"></div>
+                              <div className="h-6 bg-muted/30 rounded-full w-16"></div>
+                            </div>
                           </CardContent>
                         </Card>
                       ))}

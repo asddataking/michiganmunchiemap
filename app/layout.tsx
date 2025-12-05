@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { AuthProvider } from '@/lib/auth';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
 const inter = Inter({ 
@@ -61,13 +60,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased bg-[#0B0B0B] text-[#F3F3F3]`}>
+      <body className={`${inter.variable} font-sans antialiased bg-black text-white`}>
         <GoogleAnalytics />
-        <AuthProvider>
-          <div className="min-h-screen">
-            {children}
-          </div>
-        </AuthProvider>
+        <div className="min-h-screen">
+          {children}
+        </div>
       </body>
     </html>
   );

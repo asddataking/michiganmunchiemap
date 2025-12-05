@@ -2,7 +2,7 @@
 
 import { Instagram, Youtube, Twitter, Mail } from "lucide-react";
 
-export default function RootPage() {
+export default function LinksPage() {
   const links = [
     { 
       name: "Instagram", 

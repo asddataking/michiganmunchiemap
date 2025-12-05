@@ -126,22 +126,24 @@ const PlaceFilters: React.FC<PlaceFiltersProps> = ({
         {availableCuisines.length > 0 && (
           <div>
             <label className="text-sm font-medium mb-2 block">Cuisine</label>
-            <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
-              {availableCuisines.map((cuisine) => (
-                <div key={cuisine} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`cuisine-${cuisine}`}
-                    checked={filters.cuisines.includes(cuisine)}
-                    onCheckedChange={() => handleMultiSelectChange('cuisines', cuisine)}
-                  />
-                  <label
-                    htmlFor={`cuisine-${cuisine}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar">
+              {availableCuisines.map((cuisine) => {
+                const isSelected = filters.cuisines.includes(cuisine);
+                return (
+                  <button
+                    key={cuisine}
+                    type="button"
+                    onClick={() => handleMultiSelectChange('cuisines', cuisine)}
+                    className={`filter-chip px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      isSelected
+                        ? 'pill-active text-white bg-gradient-to-r from-[#FF6A00] to-[#FF8C42] border border-[#FF6A00]/50 shadow-lg'
+                        : 'bg-secondary/50 text-secondary-foreground border border-border hover:bg-secondary hover:border-primary/30'
+                    }`}
                   >
                     {cuisine}
-                  </label>
-                </div>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -150,22 +152,24 @@ const PlaceFilters: React.FC<PlaceFiltersProps> = ({
         {availableTags.length > 0 && (
           <div>
             <label className="text-sm font-medium mb-2 block">Features</label>
-            <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
-              {availableTags.map((tag) => (
-                <div key={tag} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`tag-${tag}`}
-                    checked={filters.tags.includes(tag)}
-                    onCheckedChange={() => handleMultiSelectChange('tags', tag)}
-                  />
-                  <label
-                    htmlFor={`tag-${tag}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar">
+              {availableTags.map((tag) => {
+                const isSelected = filters.tags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => handleMultiSelectChange('tags', tag)}
+                    className={`filter-chip px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      isSelected
+                        ? 'pill-active text-white bg-gradient-to-r from-[#FF6A00] to-[#FF8C42] border border-[#FF6A00]/50 shadow-lg'
+                        : 'bg-secondary/50 text-secondary-foreground border border-border hover:bg-secondary hover:border-primary/30'
+                    }`}
                   >
                     {tag}
-                  </label>
-                </div>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -232,34 +236,29 @@ const PlaceFilters: React.FC<PlaceFiltersProps> = ({
         </div>
 
         {/* Special Filters */}
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="featured"
-              checked={filters.featured}
-              onCheckedChange={(checked) => handleFilterChange('featured', checked)}
-            />
-            <label
-              htmlFor="featured"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Featured Only
-            </label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="verified"
-              checked={filters.verified}
-              onCheckedChange={(checked) => handleFilterChange('verified', checked)}
-            />
-            <label
-              htmlFor="verified"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Verified Only
-            </label>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => handleFilterChange('featured', !filters.featured)}
+            className={`filter-chip px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              filters.featured
+                ? 'pill-active text-white bg-gradient-to-r from-yellow-500/90 to-orange-500/90 border border-yellow-500/50 shadow-lg'
+                : 'bg-secondary/50 text-secondary-foreground border border-border hover:bg-secondary hover:border-yellow-500/30'
+            }`}
+          >
+            ⭐ Featured Only
+          </button>
+          <button
+            type="button"
+            onClick={() => handleFilterChange('verified', !filters.verified)}
+            className={`filter-chip px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              filters.verified
+                ? 'pill-active text-white bg-gradient-to-r from-blue-500/90 to-cyan-500/90 border border-blue-500/50 shadow-lg'
+                : 'bg-secondary/50 text-secondary-foreground border border-border hover:bg-secondary hover:border-blue-500/30'
+            }`}
+          >
+            ✓ Verified Only
+          </button>
         </div>
 
         {/* Active Filters Summary */}
