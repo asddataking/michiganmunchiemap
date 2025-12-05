@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Instagram, Youtube, Twitter, Mail } from "lucide-react";
 
 export default function LinksPage() {
@@ -32,13 +31,11 @@ export default function LinksPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
         <div className="flex justify-center mb-12">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/logo-detailed.svg"
             alt="DANK N DEVOUR"
-            width={200}
-            height={80}
             className="h-20 w-auto"
-            priority
           />
         </div>
 
